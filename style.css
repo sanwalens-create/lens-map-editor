@@ -1,0 +1,123 @@
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f7f7f7;
+}
+
+header {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+button {
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 12px;
+  font-size: 18px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+#saveBtn {
+  background: #0a66ff;
+  color: #fff;
+  border: none;
+  font-weight: 700;
+}
+
+main {
+  height: calc(100vh - 126px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+}
+
+#lensCanvas {
+  background: #fff;
+  border-radius: 12px;
+  touch-action: none;
+  width: min(92vw, 78vh);
+  height: min(92vw, 78vh);
+  box-shadow: 0 0 0 1px #ddd;
+}
+
+footer {
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #fff;
+  border-top: 1px solid #ddd;
+}
+
+footer button {
+  width: 54px;
+  height: 48px;
+  font-size: 22px;
+}
+
+footer button.active {
+  background: #eaf2ff;
+  border-color: #0a66ff;
+}
+button.active {
+    background: #2f6fff;
+    color: white;
+    border: 2px solid #2f6fff;
+}
+
+button {
+    transition: 0.2s;
+}
+#size05Btn {
+    font-size: 12px;
+}
+
+#size1Btn {
+    font-size: 16px;
+}
+
+#size2Btn {
+    font-size: 20px;
+}
+
+#size4Btn {
+    font-size: 24px;
+}
+
+#size8Btn {
+    font-size: 28px;
+}
+#size05Btn,
+#size1Btn,
+#size2Btn,
+#size4Btn,
+#size8Btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+}

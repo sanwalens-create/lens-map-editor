@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Lens Map Editor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <header>
+    <button id="backBtn">←</button>
+    <h1>フロントレンズ</h1>
+    <button id="saveBtn">保存</button>
+  </header>
+
+  <main>
+    <canvas id="lensCanvas"></canvas>
+  </main>
+
+  <footer>
+    <button id="penBtn" class="active">✏️</button>
+  <button id="size05Btn">·</button>
+  <button id="size1Btn" class="active">•</button>
+  <button id="size2Btn">●</button>
+    <button id="size4Btn">⬤</button>
+    <button id="size8Btn">⚫</button>
+    <button id="surfaceBtn" class="active">⚫ 表面</button>
+    <button id="insideBtn">🔴 内部</button>
+    <button id="eraserBtn">🧽</button>
+    <button id="undoBtn">↩</button>
+    <button id="clearBtn">🗑</button>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
