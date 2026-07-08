@@ -55,8 +55,16 @@ console.log("Lens:", lensName);
 console.log("Serial:", serialNo);
 console.log("Received:", receivedDate);
 // タイトルを更新
-if (lensName) {
-  title.textContent = lensName;
+function updateTitle() {
+  if (currentSide === "front") {
+    title.textContent = lensName
+      ? `${lensName} Front`
+      : "Front";
+  } else {
+    title.textContent = lensName
+      ? `${lensName} Rear`
+      : "Rear";
+  }
 }
 
 function resizeCanvas() {
@@ -78,6 +86,7 @@ function resizeCanvas() {
 
   drawBase();
   loadCurrentSide();
+  updateTitle();
 }
 
 function drawBase() {
@@ -319,7 +328,7 @@ frontBtn.onclick = () => {
   frontBtn.classList.add("active");
   rearBtn.classList.remove("active");
 
-  title.textContent = "フロントレンズ";
+  title.textContent = lensName ? `${lensName} Rear` : "Rear";
 
   loadCurrentSide();
 };
@@ -330,7 +339,7 @@ rearBtn.onclick = () => {
   rearBtn.classList.add("active");
   frontBtn.classList.remove("active");
 
-  title.textContent = "リアレンズ";
+  ttitle.textContent = lensName ? `${lensName} Rear` : "Rear";
 
   loadCurrentSide();
 };
