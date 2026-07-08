@@ -36,6 +36,7 @@ button {
   font-size: 18px;
   padding: 8px 12px;
   cursor: pointer;
+  transition: 0.2s;
 }
 
 #saveBtn {
@@ -53,71 +54,148 @@ main {
   background: #fafafa;
 }
 
-#lensCanvas {
-  background: #fff;
-  border-radius: 12px;
-  touch-action: none;
+#canvasWrap {
+  position: relative;
   width: min(92vw, 78vh);
   height: min(92vw, 78vh);
+  border-radius: 12px;
+  background: #fff;
   box-shadow: 0 0 0 1px #ddd;
+  overflow: hidden;
+}
+
+#canvasWrap canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
 }
 
 footer {
   height: 68px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 12px;
+  align-items: center;
+  padding: 0 12px;
   background: #fff;
   border-top: 1px solid #ddd;
+  overflow-x: auto;
+}
+.footerTools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  margin: 0 auto;
 }
 
 footer button {
-  width: 54px;
-  height: 48px;
-  font-size: 22px;
+  width: 36px;
+  height: 36px;
+  font-size: 19px;
+  flex: 0 0 auto;
 }
 
 footer button.active {
   background: #eaf2ff;
   border-color: #0a66ff;
 }
+
 button.active {
-    background: #2f6fff;
-    color: white;
-    border: 2px solid #2f6fff;
+  background: #2f6fff;
+  color: white;
+  border: 2px solid #2f6fff;
 }
 
-button {
-    transition: 0.2s;
-}
-#size05Btn {
-    font-size: 12px;
+#size05Btn .penIcon {
+  font-size: 8px;
 }
 
-#size1Btn {
-    font-size: 16px;
+#size1Btn .penIcon {
+  font-size: 12px;
 }
 
-#size2Btn {
-    font-size: 20px;
+#size2Btn .penIcon {
+  font-size: 18px;
 }
 
-#size4Btn {
-    font-size: 24px;
+#size4Btn .penIcon {
+  font-size: 22px;
 }
 
-#size8Btn {
-    font-size: 28px;
+#size8Btn .penIcon {
+  font-size: 27px;
 }
+
 #size05Btn,
 #size1Btn,
 #size2Btn,
 #size4Btn,
-#size8Btn {
+#size8Btn,
+#eraserBtn,
+#undoBtn,
+#clearBtn {
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
   padding: 0;
+}
+
+#surfaceBtn,
+#insideBtn,
+#frontBtn,
+#rearBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 78px;
+  height: 44px;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.divider {
+  width: 1px;
+  height: 34px;
+  background: #d6d6d6;
+  margin: 0 4px;
+  flex: 0 0 auto;
+}
+
+.penIcon {
+  color: #111;
+  line-height: 1;
+}
+
+.colorDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.colorDot.black {
+  background: #111;
+}
+
+.colorDot.red {
+  background: #d32f2f;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: #222;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+button.active .icon {
+    stroke: white;
 }

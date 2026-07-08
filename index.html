@@ -11,27 +11,69 @@
 <body>
   <header>
     <button id="backBtn">←</button>
-    <h1>フロントレンズ</h1>
+    <h1 id="title">フロントレンズ</h1>
     <button id="saveBtn">保存</button>
   </header>
 
   <main>
-    <canvas id="lensCanvas"></canvas>
+    <div id="canvasWrap">
+      <canvas id="baseCanvas"></canvas>
+      <canvas id="drawCanvas"></canvas>
+    </div>
   </main>
 
-  <footer>
-    <button id="penBtn" class="active">✏️</button>
-  <button id="size05Btn">·</button>
-  <button id="size1Btn" class="active">•</button>
-  <button id="size2Btn">●</button>
-    <button id="size4Btn">⬤</button>
-    <button id="size8Btn">⚫</button>
-    <button id="surfaceBtn" class="active">⚫ 表面</button>
-    <button id="insideBtn">🔴 内部</button>
-    <button id="eraserBtn">🧽</button>
-    <button id="undoBtn">↩</button>
-    <button id="clearBtn">🗑</button>
-  </footer>
+<footer>
+  <div class="footerTools">
+
+    <button id="size05Btn"><span class="penIcon">●</span></button>
+    <button id="size1Btn"><span class="penIcon">●</span></button>
+    <button id="size2Btn"><span class="penIcon">●</span></button>
+    <button id="size4Btn"><span class="penIcon">●</span></button>
+    <button id="size8Btn"><span class="penIcon">●</span></button>
+
+    <div class="divider"></div>
+
+    <button id="surfaceBtn" class="active">
+      <span class="colorDot black"></span>
+      <span>表面</span>
+    </button>
+
+    <button id="insideBtn">
+      <span class="colorDot red"></span>
+      <span>内部</span>
+    </button>
+
+    <div class="divider"></div>
+
+    <button id="frontBtn" class="active">Front</button>
+    <button id="rearBtn">Rear</button>
+
+<button id="eraserBtn">
+  <svg viewBox="0 0 24 24" class="icon">
+    <path d="M8 5L3 10a2 2 0 0 0 0 3l5 5a2 2 0 0 0 3 0l10-10a2 2 0 0 0 0-3l-2-2a2 2 0 0 0-3 0L8 5z"/>
+    <path d="M13 18h8"/>
+  </svg>
+</button>
+
+<button id="undoBtn">
+  <svg viewBox="0 0 24 24" class="icon">
+    <path d="M9 7L4 12l5 5"/>
+    <path d="M4 12h9a6 6 0 1 1 0 12"/>
+  </svg>
+</button>
+
+<button id="clearBtn">
+  <svg viewBox="0 0 24 24" class="icon">
+    <path d="M9 4h6"/>
+    <path d="M4 7h16"/>
+    <path d="M7 7l1 13h8l1-13"/>
+    <path d="M10 11v6"/>
+    <path d="M14 11v6"/>
+  </svg>
+</button>
+
+  </div>
+</footer>
 
   <script src="script.js"></script>
 </body>
