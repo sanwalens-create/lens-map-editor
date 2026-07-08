@@ -54,6 +54,10 @@ receivedDate = params.get("received") || "";
 console.log("Lens:", lensName);
 console.log("Serial:", serialNo);
 console.log("Received:", receivedDate);
+// タイトルを更新
+if (lensName) {
+  title.textContent = lensName;
+}
 
 function resizeCanvas() {
   const size = Math.min(
