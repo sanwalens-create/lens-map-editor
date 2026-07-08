@@ -254,13 +254,7 @@ clearBtn.onclick = () => {
 };
 
 saveBtn.onclick = () => {
-
-    lensName = prompt("Lens Name", lensName) || lensName;
-    serialNo = prompt("Serial No", serialNo) || serialNo;
-    receivedDate = prompt("Received", receivedDate) || receivedDate;
-
-    exportLensMap();
-
+  exportLensMap();
 };
 
 backBtn.onclick = () => {
