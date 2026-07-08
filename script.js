@@ -328,7 +328,7 @@ frontBtn.onclick = () => {
   frontBtn.classList.add("active");
   rearBtn.classList.remove("active");
 
-  title.textContent = lensName ? `${lensName} Rear` : "Rear";
+  title.textContent = lensName ? `${lensName} Front` : "Front";
 
   loadCurrentSide();
 };
@@ -339,7 +339,7 @@ rearBtn.onclick = () => {
   rearBtn.classList.add("active");
   frontBtn.classList.remove("active");
 
-  ttitle.textContent = lensName ? `${lensName} Rear` : "Rear";
+  title.textContent = lensName ? `${lensName} Rear` : "Rear";
 
   loadCurrentSide();
 };
