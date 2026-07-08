@@ -9,11 +9,13 @@
 </head>
 
 <body>
-  <header>
-    <button id="backBtn">←</button>
-    <h1 id="title">フロントレンズ</h1>
-    <button id="saveBtn">保存</button>
-  </header>
+<header>
+  <button id="backBtn">←</button>
+
+  <h1 id="title">Lens Map</h1>
+
+  <button id="saveBtn">保存</button>
+</header>
 
   <main>
     <div id="canvasWrap">
@@ -50,15 +52,32 @@
 
 <button id="eraserBtn">
   <svg viewBox="0 0 24 24" class="icon">
-    <path d="M8 5L3 10a2 2 0 0 0 0 3l5 5a2 2 0 0 0 3 0l10-10a2 2 0 0 0 0-3l-2-2a2 2 0 0 0-3 0L8 5z"/>
-    <path d="M13 18h8"/>
+    <!-- 消しゴム本体 -->
+    <path d="M20 9.5
+             L14.5 4
+             Q13.8 3.3 13 4
+             L4.8 12.2
+             Q4 13 4.8 13.8
+             L9.8 18.8
+             H12.5
+             L20 11.3
+             Q20.8 10.5 20 9.5Z"/>
+
+    <!-- ラベル -->
+    <path d="M10.2 8.2L15.8 13.8"
+          stroke="#fff"
+          stroke-width="2.2"
+          stroke-linecap="round"/>
+
+    <!-- 消したライン -->
+    <path d="M3.5 20H11.5"/>
   </svg>
 </button>
 
 <button id="undoBtn">
   <svg viewBox="0 0 24 24" class="icon">
-    <path d="M9 7L4 12l5 5"/>
-    <path d="M4 12h9a6 6 0 1 1 0 12"/>
+    <path d="M9 7L4 12L9 17"/>
+    <path d="M4 12H13C17.4 12 21 15.6 21 20C21 24.4 17.4 28 13 28H10"/>
   </svg>
 </button>
 

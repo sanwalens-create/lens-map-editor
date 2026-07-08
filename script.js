@@ -44,6 +44,16 @@ let currentSide = "front";
 let lensName = "";
 let serialNo = "";
 let receivedDate = "";
+// -------- URL Parameters --------
+const params = new URLSearchParams(window.location.search);
+
+lensName = params.get("lens") || "";
+serialNo = params.get("serial") || "";
+receivedDate = params.get("received") || "";
+
+console.log("Lens:", lensName);
+console.log("Serial:", serialNo);
+console.log("Received:", receivedDate);
 
 function resizeCanvas() {
   const size = Math.min(
