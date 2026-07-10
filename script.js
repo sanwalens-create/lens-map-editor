@@ -79,8 +79,15 @@ function resizeCanvas() {
 }
 
 function drawBase() {
-  const size = Math.min(baseCanvas.clientWidth, baseCanvas.clientHeight);
-  drawLensBase(baseCtx, 0, 0, size, true);
+  const width = baseCanvas.clientWidth;
+  const height = baseCanvas.clientHeight;
+
+  const size = Math.min(width, height);
+
+  const x = (width - size) / 2;
+  const y = (height - size) / 2;
+
+  drawLensBase(baseCtx, x, y, size, true);
 }
 
 function drawLensBase(ctx, x, y, size, clearFirst = false) {
