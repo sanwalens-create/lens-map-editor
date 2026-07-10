@@ -318,7 +318,7 @@ async function exportLensMap() {
       makeSingleLensMapImage("Front", frontData),
       makeSingleLensMapImage("Rear", rearData),
     ]);
-    
+
 
     const payload = {
       id: lensId,
@@ -342,7 +342,7 @@ const response = await fetch(GAS_WEB_APP_URL, {
 
 const result = await response.json();
 console.log(result);
-alert(JSON.stringify(result));
+
 
 // ↓ この行は一旦削除
 // alert("保存データを送信しました。数秒後にAppSheetへ戻って同期してください。");
