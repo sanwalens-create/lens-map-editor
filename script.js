@@ -4,7 +4,7 @@
 // ========================================
 
 const APP_VERSION = "v2.5.0";
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxIm77X2aUmdGWTb6-TZFkXxoJZZWzOa4wK877IcXGcAhFPrPBbbTSAtdCrcE/exec";
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby27SYVZL79QHnLXPVa0Sd6NrNwWR9R23iM9yMsxv4XUOlwVKGZlxv10-LSdwFNiNcVkQ/exec";
 
 const baseCanvas = document.getElementById("baseCanvas");
 const drawCanvas = document.getElementById("drawCanvas");
