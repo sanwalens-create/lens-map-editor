@@ -74,13 +74,13 @@ button {
   font-weight: 700;
 }
 
-main {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #fafafa;
-  overflow: hidden;
+main{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+    overflow: hidden;
 }
 
 #canvasWrap {

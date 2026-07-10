@@ -61,10 +61,11 @@ function updateTitle() {
 }
 
 function resizeCanvas() {
-const main = document.querySelector("main");
+const headerHeight = document.querySelector("header").offsetHeight;
+const footerHeight = document.querySelector("footer").offsetHeight;
 
-const availableWidth = main.clientWidth;
-const availableHeight = main.clientHeight;
+const availableWidth = window.innerWidth;
+const availableHeight = window.innerHeight - headerHeight - footerHeight;
 
 canvasSize = Math.min(
   availableWidth * 0.92,
