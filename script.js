@@ -490,6 +490,3 @@ window.addEventListener("resize", resizeCanvas);
 setPenSize(0.5, size05Btn);
 updatePenIcons();
 resizeCanvas();
-console.log("window.innerWidth =", window.innerWidth);
-console.log("window.innerHeight =", window.innerHeight);
-console.log("window.visualViewport =", window.visualViewport?.height);
