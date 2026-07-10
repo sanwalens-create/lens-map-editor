@@ -341,8 +341,12 @@ const response = await fetch(GAS_WEB_APP_URL, {
 });
 
 const result = await response.json();
-console.log(result);
 
+if (result.success) {
+  alert("保存が完了しました。\n\nAppSheetへ戻り、同期を行ってください。");
+} else {
+  alert("保存に失敗しました。\n\n" + result.error);
+}
 
 // ↓ この行は一旦削除
 // alert("保存データを送信しました。数秒後にAppSheetへ戻って同期してください。");
