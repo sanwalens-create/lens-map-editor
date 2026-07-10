@@ -343,12 +343,29 @@ const response = await fetch(GAS_WEB_APP_URL, {
 const result = await response.json();
 
 if (result.success) {
-  alert("保存が完了しました。\n\nAppSheetへ戻ります。");
-  history.back();
+  const msg = document.createElement("div");
+  msg.style.position = "fixed";
+  msg.style.left = "50%";
+  msg.style.top = "50%";
+  msg.style.transform = "translate(-50%, -50%)";
+  msg.style.padding = "20px 30px";
+  msg.style.background = "rgba(0,0,0,0.85)";
+  msg.style.color = "#fff";
+  msg.style.borderRadius = "12px";
+  msg.style.fontSize = "18px";
+  msg.style.textAlign = "center";
+  msg.style.zIndex = "9999";
+  msg.innerHTML = "保存が完了しました。<br>AppSheetへ戻ります…";
+
+  document.body.appendChild(msg);
+
+  setTimeout(() => {
+    history.back();
+  }, 2000);
+
 } else {
   alert("保存に失敗しました。\n\n" + result.error);
 }
-
 // ↓ この行は一旦削除
 // alert("保存データを送信しました。数秒後にAppSheetへ戻って同期してください。");
   } catch (error) {
