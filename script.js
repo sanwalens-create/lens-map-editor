@@ -38,6 +38,9 @@ let lastX = 0;
 let lastY = 0;
 let currentSide = "front";
 let isSaving = false;
+let canvasOffsetX = 0;
+let canvasOffsetY = 0;
+let canvasSize = 0;
 
 let frontHistory = [];
 let rearHistory = [];
@@ -58,17 +61,25 @@ function updateTitle() {
 }
 
 function resizeCanvas() {
-  const size = Math.min(
-    window.innerWidth * 0.92,
-    (window.innerHeight - 126) * 0.92
-  );
+const main = document.querySelector("main");
+
+const availableWidth = main.clientWidth;
+const availableHeight = main.clientHeight;
+
+canvasSize = Math.min(
+  availableWidth * 0.92,
+  availableHeight * 0.92
+);
+
+canvasOffsetX = (availableWidth - canvasSize) / 2;
+canvasOffsetY = (availableHeight - canvasSize) / 2;
   const ratio = window.devicePixelRatio || 1;
 
-  baseCanvas.width = drawCanvas.width = Math.round(size * ratio);
-  baseCanvas.height = drawCanvas.height = Math.round(size * ratio);
+baseCanvas.width = drawCanvas.width = Math.round(canvasSize * ratio);
+baseCanvas.height = drawCanvas.height = Math.round(canvasSize * ratio);
 
-  baseCanvas.style.width = drawCanvas.style.width = `${size}px`;
-  baseCanvas.style.height = drawCanvas.style.height = `${size}px`;
+baseCanvas.style.width = drawCanvas.style.width = `${canvasSize}px`;
+baseCanvas.style.height = drawCanvas.style.height = `${canvasSize}px`;
 
   baseCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
   drawCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
