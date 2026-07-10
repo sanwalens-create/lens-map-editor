@@ -41,12 +41,14 @@ let rearHistory = [];
 
 let currentSide = "front";
 // ---------- Lens Information ----------
+let lensId = "";
 let lensName = "";
 let serialNo = "";
 let receivedDate = "";
 // -------- URL Parameters --------
 const params = new URLSearchParams(window.location.search);
 
+lensId = params.get("id") || "";
 lensName = params.get("lens") || "";
 serialNo = params.get("serial") || "";
 receivedDate = params.get("received") || "";
@@ -379,132 +381,103 @@ function loadImage(dataUrl) {
   });
 }
 
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxIm77X2aUmdGWTb6-TZFkXxoJZZWzOa4wK877IcXGcAhFPrPBbbTSAtdCrcE/exec";
+
 async function exportLensMap() {
-
-  const receivedText = receivedDate;
-
   const frontData = getLatestImage(frontHistory);
   const rearData = getLatestImage(rearHistory);
 
-  const [frontImg, rearImg] = await Promise.all([
-    loadImage(frontData),
-    loadImage(rearData),
-  ]);
+  if (!lensId) {
+    alert("IDがありません。AppSheetから開き直してください。");
+    return;
+  }
 
-  const exportCanvas = document.createElement("canvas");
-  const exportCtx = exportCanvas.getContext("2d");
+  if (!frontData && !rearData) {
+    alert("保存するレンズマップがありません。");
+    return;
+  }
 
-  exportCanvas.width = 2048;
-  exportCanvas.height = 1200;
+  saveBtn.disabled = true;
+  saveBtn.textContent = "保存中...";
 
-  const W = exportCanvas.width;
+  try {
+    const frontImage = frontData ? makeSingleLensMapImage("Front", frontData) : "";
+    const rearImage = rearData ? makeSingleLensMapImage("Rear", rearData) : "";
 
-  exportCtx.fillStyle = "#ffffff";
-  exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+    const payload = {
+      id: lensId,
+      lens: lensName,
+      serial: serialNo,
+      received: receivedDate,
+      frontImage: frontImage,
+      rearImage: rearImage
+    };
 
-  // ===== Title =====
-  exportCtx.fillStyle = "#111";
-  exportCtx.textAlign = "center";
-  exportCtx.textBaseline = "middle";
-  exportCtx.font = "bold 56px system-ui";
-  exportCtx.fillText("Lens Map", W / 2, 70);
+    await fetch(GAS_WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(payload)
+    });
 
-  // ===== Header =====
-  exportCtx.textAlign = "left";
-  exportCtx.fillStyle = "#111";
-  exportCtx.font = "30px system-ui";
+    alert("保存しました。AppSheetに戻って同期してください。");
 
-  const labelX = 120;
-  const colonX = 270;
-  const valueX = 300;
+  } catch (err) {
+    console.error(err);
+    alert("保存に失敗しました。");
 
-  exportCtx.fillText("Lens", labelX, 145);
-  exportCtx.fillText(":", colonX, 145);
-  exportCtx.fillText(lensName, valueX, 145);
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = "保存";
+  }
+}
 
-  exportCtx.fillText("Serial", labelX, 195);
-  exportCtx.fillText(":", colonX, 195);
-  exportCtx.fillText(serialNo, valueX, 195);
+function makeSingleLensMapImage(sideLabel, drawingDataUrl) {
+  const imgCanvas = document.createElement("canvas");
+  const imgCtx = imgCanvas.getContext("2d");
 
-  exportCtx.fillText("Received", labelX, 245);
-  exportCtx.fillText(":", colonX, 245);
-  exportCtx.fillText(receivedText, valueX, 245);
+  imgCanvas.width = 1200;
+  imgCanvas.height = 1400;
 
-  exportCtx.strokeStyle = "#dddddd";
-  exportCtx.lineWidth = 2;
-  exportCtx.beginPath();
-  exportCtx.moveTo(120, 285);
-  exportCtx.lineTo(W - 120, 285);
-  exportCtx.stroke();
+  imgCtx.fillStyle = "#ffffff";
+  imgCtx.fillRect(0, 0, imgCanvas.width, imgCanvas.height);
 
-  // ===== Lens =====
-  const lensSize = 620;
-  const leftX = 210;
-  const rightX = W - leftX - lensSize;
-  const lensY = 405;
+  imgCtx.fillStyle = "#111";
+  imgCtx.textAlign = "center";
+  imgCtx.textBaseline = "middle";
+  imgCtx.font = "bold 52px system-ui";
+  imgCtx.fillText(`${lensName} ${sideLabel}`, imgCanvas.width / 2, 80);
 
-  exportCtx.fillStyle = "#111";
-  exportCtx.textAlign = "center";
-  exportCtx.font = "bold 34px system-ui";
-  exportCtx.fillText("Front", leftX + lensSize / 2, 355);
-  exportCtx.fillText("Rear", rightX + lensSize / 2, 355);
+  imgCtx.textAlign = "left";
+  imgCtx.font = "28px system-ui";
+  imgCtx.fillText(`Serial: ${serialNo}`, 80, 145);
+  imgCtx.fillText(`Received: ${receivedDate}`, 80, 190);
 
-  drawExportLens(exportCtx, leftX, lensY, lensSize, frontImg);
-  drawExportLens(exportCtx, rightX, lensY, lensSize, rearImg);
+  const size = 1000;
+  const x = 100;
+  const y = 260;
 
-  // ===== Legend =====
-  exportCtx.strokeStyle = "#dddddd";
-  exportCtx.lineWidth = 2;
-  exportCtx.beginPath();
-  exportCtx.moveTo(120, 1080);
-  exportCtx.lineTo(W - 120, 1080);
-  exportCtx.stroke();
+  drawLensBase(imgCtx, x, y, size, false);
 
-  exportCtx.fillStyle = "#111";
-  exportCtx.textAlign = "left";
-  exportCtx.font = "bold 28px system-ui";
-  exportCtx.fillText("Legend", 120, 1125);
+  const img = new Image();
+  img.src = drawingDataUrl;
 
-  exportCtx.font = "26px system-ui";
+  imgCtx.drawImage(img, x, y, size, size);
 
-  exportCtx.fillStyle = "#111";
-  exportCtx.beginPath();
-  exportCtx.arc(150, 1168, 8, 0, Math.PI * 2);
-  exportCtx.fill();
-  exportCtx.fillText("Surface", 170, 1168);
+  imgCtx.strokeStyle = "#dddddd";
+  imgCtx.lineWidth = 3;
+  imgCtx.strokeRect(x, y, size, size);
 
-  exportCtx.fillStyle = "#d32f2f";
-  exportCtx.beginPath();
-  exportCtx.arc(420, 1168, 8, 0, Math.PI * 2);
-  exportCtx.fill();
+  imgCtx.fillStyle = "#111";
+  imgCtx.font = "24px system-ui";
+  imgCtx.fillText("● Surface", 100, 1330);
 
-  exportCtx.fillStyle = "#111";
-  exportCtx.fillText("Internal", 440, 1168);
+  imgCtx.fillStyle = "#d32f2f";
+  imgCtx.fillText("● Internal", 330, 1330);
 
-  // ===== Center Line =====
-  exportCtx.strokeStyle = "#e2e2e2";
-  exportCtx.lineWidth = 2;
-  exportCtx.beginPath();
-  exportCtx.moveTo(W / 2, 340);
-  exportCtx.lineTo(W / 2, 1100);
-  exportCtx.stroke();
-
-  // ===== File Name =====
-  const nameParts = [
-    sanitizeFileName(lensName),
-    sanitizeFileName(serialNo),
-    sanitizeFileName(receivedText),
-  ].filter(Boolean);
-
-  const fileName =
-    nameParts.length > 0
-      ? `${nameParts.join("_")}_LensMap.png`
-      : `LensMap.png`;
-
-  const link = document.createElement("a");
-  link.download = fileName;
-  link.href = exportCanvas.toDataURL("image/png");
-  link.click();
+  return imgCanvas.toDataURL("image/png");
 }
 
 function drawExportLens(ctx, x, y, size, drawingImage) {
