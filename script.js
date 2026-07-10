@@ -319,6 +319,8 @@ async function exportLensMap() {
       makeSingleLensMapImage("Rear", rearData),
     ]);
 
+    alert("送信ID=" + lensId);
+
     const payload = {
       id: lensId,
       lens: lensName,
