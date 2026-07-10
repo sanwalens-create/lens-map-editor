@@ -330,17 +330,21 @@ async function exportLensMap() {
 
     // GAS Webアプリは別ドメインのため、応答本文を読まずに送信する。
     // text/plainにすることでプリフライトを避ける。
-    await fetch(GAS_WEB_APP_URL, {
-      method: "POST",
-      mode: "no-cors",
-      cache: "no-store",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8",
-      },
-      body: JSON.stringify(payload),
-    });
+const response = await fetch(GAS_WEB_APP_URL, {
+  method: "POST",
+  cache: "no-store",
+  headers: {
+    "Content-Type": "text/plain;charset=utf-8",
+  },
+  body: JSON.stringify(payload),
+});
 
-    alert("保存データを送信しました。数秒後にAppSheetへ戻って同期してください。");
+const result = await response.json();
+console.log(result);
+alert(JSON.stringify(result));
+
+// ↓ この行は一旦削除
+// alert("保存データを送信しました。数秒後にAppSheetへ戻って同期してください。");
   } catch (error) {
     console.error(error);
     alert(`保存に失敗しました。\n${error.message || error}`);
