@@ -13,6 +13,7 @@ const canvasWrap = document.getElementById("canvasWrap");
 const baseCtx = baseCanvas.getContext("2d");
 const drawCtx = drawCanvas.getContext("2d");
 
+const penBtn = document.getElementById("penBtn");
 const eraserBtn = document.getElementById("eraserBtn");
 const undoBtn = document.getElementById("undoBtn");
 const clearBtn = document.getElementById("clearBtn");
@@ -32,8 +33,11 @@ const frontBtn = document.getElementById("frontBtn");
 const rearBtn = document.getElementById("rearBtn");
 
 let tool = "pen";
+
 let penSize = 1;
+
 let penColor = "#111";
+
 let drawing = false;
 let lastX = 0;
 let lastY = 0;
@@ -168,14 +172,7 @@ function getPos(e) {
 
 function startDraw(e) {
   if (isSaving) return;
-
-  // Apple Pencil以外では描画しない
-  if (e.pointerType && e.pointerType !== "pen") {
-    return;
-  }
-
   e.preventDefault();
-
   drawing = true;
 
   const pos = getPos(e);
@@ -192,15 +189,14 @@ function draw(e) {
   drawCtx.lineCap = "round";
   drawCtx.lineJoin = "round";
 
-  if (tool === "pen") {
-    drawCtx.globalCompositeOperation = "source-over";
-    drawCtx.strokeStyle = penColor;
-    drawCtx.lineWidth = penSize;
-  } else {
-    drawCtx.globalCompositeOperation = "destination-out";
-    drawCtx.lineWidth = 22;
-  }
-
+if (tool === "pen") {
+  drawCtx.globalCompositeOperation = "source-over";
+  drawCtx.strokeStyle = penColor;
+  drawCtx.lineWidth = penSize;
+} else {
+  drawCtx.globalCompositeOperation = "destination-out";
+  drawCtx.lineWidth = penSize;
+}
   drawCtx.beginPath();
   drawCtx.moveTo(lastX, lastY);
   drawCtx.lineTo(pos.x, pos.y);
@@ -412,10 +408,9 @@ if (result.success) {
 }
 
 function setPenSize(size, activeButton) {
-  penSize = size;
-  tool = "pen";
 
-  eraserBtn.classList.remove("active");
+  penSize = size;
+
   size05Btn.classList.remove("active");
   size1Btn.classList.remove("active");
   size2Btn.classList.remove("active");
@@ -425,12 +420,23 @@ function setPenSize(size, activeButton) {
   activeButton.classList.add("active");
 }
 
+
 // ---------- Controls ----------
-eraserBtn.onclick = () => {
-  tool = "eraser";
-  eraserBtn.classList.add("active");
+penBtn.onclick = () => {
+  tool = "pen";
+
+  penBtn.classList.add("active");
+  eraserBtn.classList.remove("active");
+
 };
 
+eraserBtn.onclick = () => {
+  tool = "eraser";
+
+  eraserBtn.classList.add("active");
+  penBtn.classList.remove("active");
+
+};
 undoBtn.onclick = () => {
   const historyForSide = currentSide === "front" ? frontHistory : rearHistory;
 
@@ -506,20 +512,21 @@ function updatePenIcons() {
   });
 }
 
-// ---------- Pointer events ----------
-drawCanvas.addEventListener("mousedown", startDraw);
-drawCanvas.addEventListener("mousemove", draw);
-drawCanvas.addEventListener("mouseup", endDraw);
-drawCanvas.addEventListener("mouseleave", endDraw);
-
-drawCanvas.addEventListener("touchstart", startDraw, { passive: false });
-drawCanvas.addEventListener("touchmove", draw, { passive: false });
-drawCanvas.addEventListener("touchend", endDraw, { passive: false });
-drawCanvas.addEventListener("touchcancel", endDraw, { passive: false });
+// ---------- Pointer Events ----------
+drawCanvas.addEventListener("pointerdown", startDraw);
+drawCanvas.addEventListener("pointermove", draw);
+drawCanvas.addEventListener("pointerup", endDraw);
+drawCanvas.addEventListener("pointercancel", endDraw);
+drawCanvas.addEventListener("pointerleave", endDraw);
 
 window.addEventListener("resize", resizeCanvas);
 
 // ---------- Start ----------
 setPenSize(0.5, size05Btn);
+
+penBtn.classList.add("active");
+eraserBtn.classList.remove("active");
+
 updatePenIcons();
+
 resizeCanvas();

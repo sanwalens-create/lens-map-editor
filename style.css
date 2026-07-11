@@ -173,6 +173,7 @@ button.active {
 #size2Btn,
 #size4Btn,
 #size8Btn,
+#penBtn,
 #eraserBtn,
 #undoBtn,
 #clearBtn {
@@ -236,9 +237,10 @@ button.active {
     stroke-linecap: round;
     stroke-linejoin: round;
 }
+
+
 #undoBtn .icon{
     transform: rotate(-5deg);
-    transform-origin: center;
 }
 
 #eraserBtn .icon {
