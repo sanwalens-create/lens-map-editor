@@ -471,21 +471,19 @@ size8Btn.onclick = () => setPenSize(8, size8Btn);
 
 surfaceBtn.onclick = () => {
   penColor = "#111";
-  tool = "pen";
 
-  eraserBtn.classList.remove("active");
   surfaceBtn.classList.add("active");
   insideBtn.classList.remove("active");
+
   updatePenIcons();
 };
 
 insideBtn.onclick = () => {
   penColor = "#d32f2f";
-  tool = "pen";
 
-  eraserBtn.classList.remove("active");
   insideBtn.classList.add("active");
   surfaceBtn.classList.remove("active");
+
   updatePenIcons();
 };
 
