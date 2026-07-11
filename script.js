@@ -168,7 +168,14 @@ function getPos(e) {
 
 function startDraw(e) {
   if (isSaving) return;
+
+  // Apple Pencil以外では描画しない
+  if (e.pointerType && e.pointerType !== "pen") {
+    return;
+  }
+
   e.preventDefault();
+
   drawing = true;
 
   const pos = getPos(e);
