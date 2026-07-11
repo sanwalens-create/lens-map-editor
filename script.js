@@ -1,9 +1,9 @@
 // ========================================
 // Lens Map Editor
-// Version 2.5.0
+// Version 3.0.0
 // ========================================
 
-const APP_VERSION = "v2.5.0";
+const APP_VERSION = "v3.0.0";
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby27SYVZL79QHnLXPVa0Sd6NrNwWR9R23iM9yMsxv4XUOlwVKGZlxv10-LSdwFNiNcVkQ/exec";
 
 const baseCanvas = document.getElementById("baseCanvas");
@@ -414,7 +414,6 @@ returnBtn.style.fontWeight = "700";
 returnBtn.onclick = () => {
   history.back();
 };
-
 msg.innerHTML = "保存が完了しました。";
 msg.appendChild(returnBtn);
 
