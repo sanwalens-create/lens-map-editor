@@ -52,6 +52,9 @@ let rearHistory = [];
 
 // ---------- Lens information from AppSheet ----------
 const params = new URLSearchParams(window.location.search);
+
+console.log("search =", window.location.search);
+
 const lensId = params.get("id") || "";
 const lensName = params.get("lens") || "";
 const serialNo = params.get("serial") || "";
