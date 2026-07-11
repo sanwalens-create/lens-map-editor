@@ -388,9 +388,25 @@ if (result.success) {
 
   document.body.appendChild(msg);
 
-  setTimeout(() => {
-    history.back();
-  }, 2000);
+const returnBtn = document.createElement("button");
+
+returnBtn.textContent = "AppSheetへ戻る";
+returnBtn.style.display = "block";
+returnBtn.style.margin = "16px auto 0";
+returnBtn.style.padding = "10px 18px";
+returnBtn.style.border = "none";
+returnBtn.style.borderRadius = "10px";
+returnBtn.style.background = "#0a66ff";
+returnBtn.style.color = "#fff";
+returnBtn.style.fontSize = "16px";
+returnBtn.style.fontWeight = "700";
+
+returnBtn.onclick = () => {
+  history.back();
+};
+
+msg.innerHTML = "保存が完了しました。";
+msg.appendChild(returnBtn);
 
 } else {
   alert("保存に失敗しました。\n\n" + result.error);
