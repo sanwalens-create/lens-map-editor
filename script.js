@@ -56,9 +56,16 @@ const lensId = params.get("id") || "";
 const lensName = params.get("lens") || "";
 const serialNo = params.get("serial") || "";
 const receivedDate = params.get("received") || "";
+const initialSide = (params.get("side") || "front").toLowerCase();
 
 console.log("Lens Map Editor", APP_VERSION);
-console.log({ lensId, lensName, serialNo, receivedDate });
+console.log({
+  lensId,
+  lensName,
+  serialNo,
+  receivedDate,
+  initialSide
+});
 
 function updateTitle() {
   const sideLabel = currentSide === "front" ? "Front" : "Rear";
@@ -542,5 +549,10 @@ penBtn.classList.add("active");
 eraserBtn.classList.remove("active");
 
 updatePenIcons();
+
+currentSide = initialSide === "rear" ? "rear" : "front";
+
+frontBtn.classList.toggle("active", currentSide === "front");
+rearBtn.classList.toggle("active", currentSide === "rear");
 
 resizeCanvas();
