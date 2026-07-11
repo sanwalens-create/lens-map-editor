@@ -553,9 +553,10 @@ eraserBtn.classList.remove("active");
 
 updatePenIcons();
 
-currentSide = initialSide === "rear" ? "rear" : "front";
-
-frontBtn.classList.toggle("active", currentSide === "front");
-rearBtn.classList.toggle("active", currentSide === "rear");
-
 resizeCanvas();
+
+if (initialSide === "rear") {
+  rearBtn.onclick();
+} else {
+  frontBtn.onclick();
+}
