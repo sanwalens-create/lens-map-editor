@@ -8,6 +8,7 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby27SYVZL79QHnL
 
 const baseCanvas = document.getElementById("baseCanvas");
 const drawCanvas = document.getElementById("drawCanvas");
+const canvasWrap = document.getElementById("canvasWrap");
 
 const baseCtx = baseCanvas.getContext("2d");
 const drawCtx = drawCanvas.getContext("2d");
@@ -79,8 +80,14 @@ canvasOffsetY = (availableHeight - canvasSize) / 2;
 baseCanvas.width = drawCanvas.width = Math.round(canvasSize * ratio);
 baseCanvas.height = drawCanvas.height = Math.round(canvasSize * ratio);
 
-baseCanvas.style.width = drawCanvas.style.width = `${canvasSize}px`;
-baseCanvas.style.height = drawCanvas.style.height = `${canvasSize}px`;
+canvasWrap.style.width = `${canvasSize}px`;
+canvasWrap.style.height = `${canvasSize}px`;
+
+baseCanvas.style.width = "100%";
+baseCanvas.style.height = "100%";
+
+drawCanvas.style.width = "100%";
+drawCanvas.style.height = "100%";
 
   baseCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
   drawCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
