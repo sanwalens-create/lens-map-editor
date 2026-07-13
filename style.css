@@ -9,52 +9,49 @@ body {
   width: 100%;
   height: 100dvh;
   overflow: hidden;
-
-display: flex;
-flex-direction: column;
-
+  display: flex;
+  flex-direction: column;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: #f7f7f7;
 }
 
 header {
-    height: 68px;
-    display: flex;
-    align-items: center;
-    padding: 0 14px;
-    background: #fff;
-    border-bottom: 1px solid #ddd;
-    gap: 12px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.headerCenter {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
 }
 
 h1 {
   margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 20px;
   font-weight: 700;
 }
-.headerCenter {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-}
 
 .headerInfo {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    font-size: 11px;
-    color: #888;
-}
-
-#serialLabel {
-    font-weight: 500;
-}
-
-#versionLabel {
-    font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 11px;
+  color: #888;
 }
 
 button {
@@ -64,44 +61,49 @@ button {
   font-size: 18px;
   padding: 8px 12px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.15s;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+#backBtn {
+  min-width: 44px;
 }
 
 #saveBtn {
+  min-width: 62px;
   background: #0a66ff;
   color: #fff;
   border: none;
   font-weight: 700;
 }
 
-main{
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-
-    position: relative;
-    min-height: 0;
-    padding: 12px;
-    background: #fafafa;
+main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  padding: 12px;
+  background: #fafafa;
 }
 
 #canvasWrap {
-    position: relative;
-
-    width: 100%;
-    height: 100%;
-
-    max-width: 900px;
-    max-height: 900px;
-
-    aspect-ratio: 1 / 1;
-
-    border-radius: 12px;
-    background: #fff;
-    box-shadow: 0 0 0 1px #ddd;
-    overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 900px;
+  max-height: 900px;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 0 0 1px #ddd;
+  overflow: hidden;
 }
 
 #canvasWrap canvas {
@@ -114,6 +116,7 @@ main{
 
 footer {
   height: 68px;
+  flex: 0 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -122,6 +125,7 @@ footer {
   border-top: 1px solid #ddd;
   overflow-x: auto;
 }
+
 .footerTools {
   display: flex;
   align-items: center;
@@ -133,79 +137,43 @@ footer {
 footer button {
   width: 36px;
   height: 36px;
-  font-size: 19px;
   flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 19px;
+  line-height: 1;
 }
 
 footer button.active {
   background: #eaf2ff;
+  color: #111;
   border-color: #0a66ff;
 }
 
-button.active {
-  background: #2f6fff;
-  color: white;
-  border: 2px solid #2f6fff;
-}
-
-#size05Btn .penIcon {
-  font-size: 8px;
-}
-
-#size1Btn .penIcon {
-  font-size: 12px;
-}
-
-#size2Btn .penIcon {
-  font-size: 18px;
-}
-
-#size4Btn .penIcon {
-  font-size: 22px;
-}
-
-#size8Btn .penIcon {
-  font-size: 27px;
-}
-
-#size05Btn,
-#size1Btn,
-#size2Btn,
-#size4Btn,
-#size8Btn,
-#penBtn,
-#eraserBtn,
-#undoBtn,
-#clearBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  padding: 0;
-}
-
 #surfaceBtn,
-#insideBtn,
-#frontBtn,
-#rearBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+#insideBtn {
   gap: 6px;
   width: 78px;
   height: 44px;
-  padding: 0;
   font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
 }
 
+#size05Btn .penIcon { font-size: 8px; }
+#size1Btn .penIcon { font-size: 12px; }
+#size2Btn .penIcon { font-size: 18px; }
+#size4Btn .penIcon { font-size: 22px; }
+#size8Btn .penIcon { font-size: 27px; }
+
 .divider {
   width: 1px;
   height: 34px;
-  background: #d6d6d6;
   margin: 0 4px;
   flex: 0 0 auto;
+  background: #d6d6d6;
 }
 
 .penIcon {
@@ -216,47 +184,35 @@ button.active {
 .colorDot {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
   flex-shrink: 0;
+  border-radius: 50%;
 }
 
-.colorDot.black {
-  background: #111;
-}
-
-.colorDot.red {
-  background: #d32f2f;
-}
+.colorDot.black { background: #111; }
+.colorDot.red { background: #d32f2f; }
 
 .icon {
-    width: 20px;
-    height: 20px;
-    fill: none;
-    stroke: #222;
-    stroke-width: 2.2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: #222;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
+#undoBtn .icon { transform: rotate(-5deg); }
+#eraserBtn .icon { fill: #222; }
+#eraserBtn .icon path:nth-child(2) { fill: none; stroke: #fff; }
+#eraserBtn .icon path:nth-child(3) { fill: none; stroke: #222; }
 
-#undoBtn .icon{
-    transform: rotate(-5deg);
-}
+footer button.active .icon { stroke: #0a66ff; }
 
-#eraserBtn .icon {
-    fill: #222;
-}
-
-#eraserBtn .icon path:nth-child(2) {
-    stroke: #fff;
-    fill: none;
-}
-
-#eraserBtn .icon path:nth-child(3) {
-    fill: none;
-    stroke: #222;
-}
-
-button.active .icon {
-    stroke: white;
+@media (max-width: 700px) {
+  header { height: 60px; }
+  footer { height: 62px; }
+  .footerTools { gap: 8px; }
+  .divider { margin: 0 1px; }
+  #surfaceBtn,
+  #insideBtn { width: 70px; }
 }
