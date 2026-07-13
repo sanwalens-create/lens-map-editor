@@ -102,7 +102,10 @@ console.log({
 });
 
 function updateTitle() {
-  ...
+  const sideLabel = currentSide === "front" ? "Front" : "Rear";
+  title.textContent = lensName
+    ? `${lensName} ${sideLabel}`
+    : sideLabel;
 }
 
 // ========================================
@@ -110,7 +113,41 @@ function updateTitle() {
 // ========================================
 async function fetchSavedImageUrls() {
 
-  ...
+  if (!lensId) {
+    console.log("レンズIDがありません");
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      `${GAS_WEB_APP_URL}?id=${encodeURIComponent(lensId)}&t=${Date.now()}`,
+      {
+        method: "GET",
+        cache: "no-store"
+      }
+    );
+
+    const result = await response.json();
+
+    if (!result.success) {
+      console.error(result.error);
+      return;
+    }
+
+    frontImageUrl = result.frontUrl || "";
+    rearImageUrl = result.rearUrl || "";
+
+    console.log("========== 保存画像 ==========");
+    console.log("Front :", frontImageUrl || "(なし)");
+    console.log("Rear  :", rearImageUrl || "(なし)");
+    console.log("=============================");
+
+  } catch (err) {
+
+    console.error("画像URL取得失敗", err);
+
+  }
 
 }
 
