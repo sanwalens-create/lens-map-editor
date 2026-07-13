@@ -50,6 +50,9 @@ let canvasSize = 0;
 let frontHistory = [];
 let rearHistory = [];
 
+let frontImageUrl = "";
+let rearImageUrl = "";
+
 // ---------- Lens information from AppSheet ----------
 const params = new URLSearchParams(window.location.search);
 
@@ -101,6 +104,45 @@ console.log({
 function updateTitle() {
   const sideLabel = currentSide === "front" ? "Front" : "Rear";
   title.textContent = lensName ? `${lensName} ${sideLabel}` : sideLabel;
+}
+
+// ========================================
+// 保存済み画像URL取得
+// ========================================
+async function fetchSavedImageUrls() {
+
+  if (!lensId) return;
+
+  try {
+
+    const response = await fetch(
+      `${GAS_WEB_APP_URL}?id=${encodeURIComponent(lensId)}&t=${Date.now()}`,
+      {
+        cache: "no-store"
+      }
+    );
+
+    const result = await response.json();
+
+    if (!result.success) {
+      console.error("画像取得失敗", result.error);
+      return;
+    }
+
+    frontImageUrl = result.frontUrl || "";
+    rearImageUrl = result.rearUrl || "";
+
+    console.log("========== 保存画像 ==========");
+    console.log("Front :", frontImageUrl || "(なし)");
+    console.log("Rear  :", rearImageUrl || "(なし)");
+    console.log("=============================");
+
+  } catch (err) {
+
+    console.error("画像URL取得エラー", err);
+
+  }
+
 }
 
 function resizeCanvas() {
@@ -569,17 +611,24 @@ drawCanvas.addEventListener("pointerleave", endDraw);
 window.addEventListener("resize", resizeCanvas);
 
 // ---------- Start ----------
-setPenSize(0.5, size05Btn);
+(async () => {
 
-penBtn.classList.add("active");
-eraserBtn.classList.remove("active");
+  setPenSize(0.5, size05Btn);
 
-updatePenIcons();
+  penBtn.classList.add("active");
+  eraserBtn.classList.remove("active");
 
-resizeCanvas();
+  updatePenIcons();
 
-if (initialSide === "rear") {
-  rearBtn.onclick();
-} else {
-  frontBtn.onclick();
-}
+  resizeCanvas();
+
+  // 保存済み画像URL取得（今回は表示はしない）
+  await fetchSavedImageUrls();
+
+  if (initialSide === "rear") {
+    rearBtn.onclick();
+  } else {
+    frontBtn.onclick();
+  }
+
+})();
