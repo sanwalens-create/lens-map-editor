@@ -209,8 +209,6 @@ async function showSavedImage(side) {
 }
 
 function resizeCanvas() {
-
-function resizeCanvas() {
 const headerHeight = document.querySelector("header").offsetHeight;
 const footerHeight = document.querySelector("footer").offsetHeight;
 
