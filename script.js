@@ -1,9 +1,9 @@
 // ========================================
 // Lens Map Editor
-// Version 3.0.0
+// Version 2.6.0
 // ========================================
 
-const APP_VERSION = "v3.0.0";
+const APP_VERSION = "v2.6.0";
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby27SYVZL79QHnLXPVa0Sd6NrNwWR9R23iM9yMsxv4XUOlwVKGZlxv10-LSdwFNiNcVkQ/exec";
 
 const baseCanvas = document.getElementById("baseCanvas");
@@ -60,6 +60,33 @@ const lensName = params.get("lens") || "";
 const serialNo = params.get("serial") || "";
 const receivedDate = params.get("received") || "";
 const initialSide = (params.get("side") || "front").toLowerCase();
+const returnUrl = params.get("returnUrl") || params.get("return") || "";
+
+function isSafeReturnUrl(url) {
+  if (!url) return false;
+
+  try {
+    const parsed = new URL(url, window.location.href);
+    return ["https:", "http:", "appsheet:"].includes(parsed.protocol);
+  } catch (error) {
+    console.warn("Invalid return URL:", url, error);
+    return false;
+  }
+}
+
+function returnToAppSheet() {
+  if (isSafeReturnUrl(returnUrl)) {
+    window.location.replace(returnUrl);
+    return;
+  }
+
+  if (window.history.length > 1) {
+    window.history.back();
+    return;
+  }
+
+  alert("AppSheetへ戻れませんでした。画面を閉じてAppSheetを開いてください。");
+}
 
 console.log("Lens Map Editor", APP_VERSION);
 console.log({
@@ -67,7 +94,8 @@ console.log({
   lensName,
   serialNo,
   receivedDate,
-  initialSide
+  initialSide,
+  returnUrl
 });
 
 function updateTitle() {
@@ -411,9 +439,7 @@ returnBtn.style.color = "#fff";
 returnBtn.style.fontSize = "16px";
 returnBtn.style.fontWeight = "700";
 
-returnBtn.onclick = () => {
-  history.back();
-};
+returnBtn.onclick = returnToAppSheet;
 msg.innerHTML = "保存が完了しました。";
 msg.appendChild(returnBtn);
 
@@ -484,9 +510,7 @@ clearBtn.onclick = () => {
 
 saveBtn.onclick = exportLensMap;
 
-backBtn.onclick = () => {
-  window.history.back();
-};
+backBtn.onclick = returnToAppSheet;
 
 size05Btn.onclick = () => setPenSize(0.5, size05Btn);
 size1Btn.onclick = () => setPenSize(1, size1Btn);
