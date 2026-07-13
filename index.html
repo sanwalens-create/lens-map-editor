@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Lens Map Editor</title>
-  <link rel="stylesheet" href="style.css?v=3.0.0" />
+  <link rel="stylesheet" href="style.css?v=2.7.0" />
 </head>
+
 <body>
-  <header>
-    <button id="backBtn" type="button" aria-label="AppSheetへ戻る">←</button>
+<header>
+  <button id="backBtn">←</button>
 
-    <div class="headerCenter">
-      <h1 id="title">Lens Map</h1>
-      <div class="headerInfo">
-        <span id="serialLabel"></span>
-        <span id="versionLabel">v3.0.0</span>
-      </div>
-    </div>
+  <h1 id="title">Lens Map</h1>
 
-    <button id="saveBtn" type="button">保存</button>
-  </header>
+  <button id="saveBtn">保存</button>
+</header>
 
   <main>
     <div id="canvasWrap">
@@ -28,51 +24,81 @@
     </div>
   </main>
 
-  <footer>
-    <div class="footerTools">
-      <button id="size05Btn" type="button" aria-label="線幅 0.5"><span class="penIcon">●</span></button>
-      <button id="size1Btn" type="button" aria-label="線幅 1"><span class="penIcon">●</span></button>
-      <button id="size2Btn" type="button" aria-label="線幅 2"><span class="penIcon">●</span></button>
-      <button id="size4Btn" type="button" aria-label="線幅 4"><span class="penIcon">●</span></button>
-      <button id="size8Btn" type="button" aria-label="線幅 8"><span class="penIcon">●</span></button>
+<footer>
+  <div class="footerTools">
 
-      <div class="divider"></div>
+    <button id="size05Btn"><span class="penIcon">●</span></button>
+    <button id="size1Btn"><span class="penIcon">●</span></button>
+    <button id="size2Btn"><span class="penIcon">●</span></button>
+    <button id="size4Btn"><span class="penIcon">●</span></button>
+    <button id="size8Btn"><span class="penIcon">●</span></button>
 
-      <button id="surfaceBtn" type="button" class="active">
-        <span class="colorDot black"></span><span>表面</span>
-      </button>
-      <button id="insideBtn" type="button">
-        <span class="colorDot red"></span><span>内部</span>
-      </button>
+    <div class="divider"></div>
 
-      <div class="divider"></div>
+    <button id="surfaceBtn" class="active">
+      <span class="colorDot black"></span>
+      <span>表面</span>
+    </button>
 
-      <button id="penBtn" type="button" title="ペン" aria-label="ペン">✏️</button>
+    <button id="insideBtn">
+      <span class="colorDot red"></span>
+      <span>内部</span>
+    </button>
 
-      <button id="eraserBtn" type="button" aria-label="消しゴム">
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-          <path d="M20 9.5L14.5 4Q13.8 3.3 13 4L4.8 12.2Q4 13 4.8 13.8L9.8 18.8H12.5L20 11.3Q20.8 10.5 20 9.5Z"/>
-          <path d="M10.2 8.2L15.8 13.8" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
-          <path d="M3.5 20H11.5"/>
-        </svg>
-      </button>
+    <div class="divider"></div>
 
-      <button id="undoBtn" type="button" aria-label="元に戻す">
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-          <path d="M9 7L4 12L9 17"/>
-          <path d="M4 12H13C17.4 12 21 15.6 21 20"/>
-        </svg>
-      </button>
+    <button id="frontBtn" class="active">Front</button>
+    <button id="rearBtn">Rear</button>
 
-      <button id="clearBtn" type="button" aria-label="すべて消去">
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-          <path d="M9 4h6"/><path d="M4 7h16"/><path d="M7 7l1 13h8l1-13"/>
-          <path d="M10 11v6"/><path d="M14 11v6"/>
-        </svg>
-      </button>
-    </div>
-  </footer>
+<button id="penBtn" title="ペン">
+  ✏️
+</button>
 
-  <script src="script.js?v=3.0.0"></script>
+<button id="eraserBtn">
+  <svg viewBox="0 0 24 24" class="icon">
+    <!-- 消しゴム本体 -->
+    <path d="M20 9.5
+             L14.5 4
+             Q13.8 3.3 13 4
+             L4.8 12.2
+             Q4 13 4.8 13.8
+             L9.8 18.8
+             H12.5
+             L20 11.3
+             Q20.8 10.5 20 9.5Z"/>
+
+    <!-- ラベル -->
+    <path d="M10.2 8.2L15.8 13.8"
+          stroke="#fff"
+          stroke-width="2.2"
+          stroke-linecap="round"/>
+
+    <!-- 消したライン -->
+    <path d="M3.5 20H11.5"/>
+  </svg>
+</button>
+
+<button id="undoBtn">
+  <svg viewBox="0 0 24 24" class="icon">
+    <path d="M9 7L4 12L9 17"/>
+    <path d="M4 12H13C17.4 12 21 15.6 21 20C21 24.4 17.4 28 13 28H10"/>
+  </svg>
+</button>
+
+<button id="clearBtn">
+  <svg viewBox="0 0 24 24" class="icon">
+    <path d="M9 4h6"/>
+    <path d="M4 7h16"/>
+    <path d="M7 7l1 13h8l1-13"/>
+    <path d="M10 11v6"/>
+    <path d="M14 11v6"/>
+  </svg>
+</button>
+
+  </div>
+</footer>
+
+  <script src="script.js?v=2.7.0"></script>
 </body>
+
 </html>
