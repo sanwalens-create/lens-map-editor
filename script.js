@@ -102,8 +102,7 @@ console.log({
 });
 
 function updateTitle() {
-  const sideLabel = currentSide === "front" ? "Front" : "Rear";
-  title.textContent = lensName ? `${lensName} ${sideLabel}` : sideLabel;
+  ...
 }
 
 // ========================================
@@ -111,39 +110,68 @@ function updateTitle() {
 // ========================================
 async function fetchSavedImageUrls() {
 
-  if (!lensId) return;
+  ...
 
-  try {
+}
 
-    const response = await fetch(
-      `${GAS_WEB_APP_URL}?id=${encodeURIComponent(lensId)}&t=${Date.now()}`,
-      {
-        cache: "no-store"
-      }
+// ←ここに追加！！
+
+// ========================================
+// 保存済み画像表示
+// ========================================
+async function showSavedImage(side) {
+
+  const url = side === "front"
+    ? frontImageUrl
+    : rearImageUrl;
+
+  if (!url) {
+
+    drawCtx.clearRect(
+      0,
+      0,
+      drawCanvas.clientWidth,
+      drawCanvas.clientHeight
     );
 
-    const result = await response.json();
-
-    if (!result.success) {
-      console.error("画像取得失敗", result.error);
-      return;
-    }
-
-    frontImageUrl = result.frontUrl || "";
-    rearImageUrl = result.rearUrl || "";
-
-    console.log("========== 保存画像 ==========");
-    console.log("Front :", frontImageUrl || "(なし)");
-    console.log("Rear  :", rearImageUrl || "(なし)");
-    console.log("=============================");
-
-  } catch (err) {
-
-    console.error("画像URL取得エラー", err);
+    return;
 
   }
 
+  return new Promise((resolve, reject) => {
+
+    const img = new Image();
+
+    img.onload = () => {
+
+      drawCtx.clearRect(
+        0,
+        0,
+        drawCanvas.clientWidth,
+        drawCanvas.clientHeight
+      );
+
+      drawCtx.drawImage(
+        img,
+        0,
+        0,
+        drawCanvas.clientWidth,
+        drawCanvas.clientHeight
+      );
+
+      resolve();
+
+    };
+
+    img.onerror = reject;
+
+    img.src = url + "&t=" + Date.now();
+
+  });
+
 }
+
+function resizeCanvas() {
 
 function resizeCanvas() {
 const headerHeight = document.querySelector("header").offsetHeight;
@@ -578,20 +606,30 @@ insideBtn.onclick = () => {
   updatePenIcons();
 };
 
-frontBtn.onclick = () => {
+frontBtn.onclick = async () => {
+
   currentSide = "front";
+
   frontBtn.classList.add("active");
   rearBtn.classList.remove("active");
-  loadCurrentSide();
+
+  await showSavedImage("front");
+
   updateTitle();
+
 };
 
-rearBtn.onclick = () => {
+rearBtn.onclick = async () => {
+
   currentSide = "rear";
+
   rearBtn.classList.add("active");
   frontBtn.classList.remove("active");
-  loadCurrentSide();
+
+  await showSavedImage("rear");
+
   updateTitle();
+
 };
 
 function updatePenIcons() {
