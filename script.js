@@ -33,17 +33,25 @@ const frontBtn = document.getElementById("frontBtn");
 const rearBtn = document.getElementById("rearBtn");
 
 let tool = "pen";
+
 let penSize = 1;
+
 let penColor = "#111";
+
 let drawing = false;
 let lastX = 0;
 let lastY = 0;
 let currentSide = "front";
 let isSaving = false;
+let canvasOffsetX = 0;
+let canvasOffsetY = 0;
 let canvasSize = 0;
 
 let frontHistory = [];
 let rearHistory = [];
+
+let frontHasSavedImage = false;
+let rearHasSavedImage = false;
 
 // ---------- Lens information from AppSheet ----------
 const params = new URLSearchParams(window.location.search);
@@ -90,33 +98,125 @@ console.log({
   serialNo,
   receivedDate,
   initialSide,
-  returnUrl,
+  returnUrl
 });
 
 function updateTitle() {
   const sideLabel = currentSide === "front" ? "Front" : "Rear";
-  title.textContent = lensName ? `${lensName} ${sideLabel}` : sideLabel;
+  title.textContent = lensName
+    ? `${lensName} ${sideLabel}`
+    : sideLabel;
+}
+
+// ========================================
+// 保存済み画像をGASから取得して履歴へ登録
+// ========================================
+async function fetchSavedImages() {
+  if (!lensId) {
+    console.log("レンズIDがないため、保存済み画像を読み込みません。");
+    return;
+  }
+
+  try {
+    const requestUrl =
+      `${GAS_WEB_APP_URL}?id=${encodeURIComponent(lensId)}&t=${Date.now()}`;
+
+    const response = await fetch(requestUrl, {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error(`画像取得APIの応答エラー: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.error || "保存済み画像の取得に失敗しました。");
+    }
+
+    const [frontDrawing, rearDrawing] = await Promise.all([
+      savedMapToDrawingDataUrl(result.frontImage || ""),
+      savedMapToDrawingDataUrl(result.rearImage || "")
+    ]);
+
+    if (frontDrawing) {
+      frontHistory = [frontDrawing];
+      frontHasSavedImage = true;
+    }
+
+    if (rearDrawing) {
+      rearHistory = [rearDrawing];
+      rearHasSavedImage = true;
+    }
+
+    console.log("========== 保存済み画像 ==========");
+    console.log("Front画像:", frontDrawing ? "読込完了" : "なし");
+    console.log("Rear画像 :", rearDrawing ? "読込完了" : "なし");
+    console.log("==================================");
+  } catch (error) {
+    console.error("保存済み画像の読込みに失敗しました。", error);
+  }
+}
+
+// ========================================
+// 保存画像（1200×1400）からマップ部分（1000×1000）を取り出す
+// ========================================
+async function savedMapToDrawingDataUrl(dataUrl) {
+  if (!dataUrl) return "";
+
+  const img = await loadImage(dataUrl);
+  if (!img) return "";
+
+  const cropCanvas = document.createElement("canvas");
+  const cropCtx = cropCanvas.getContext("2d");
+
+  if (!cropCtx) {
+    throw new Error("読込み用キャンバスを作成できませんでした。");
+  }
+
+  cropCanvas.width = 1000;
+  cropCanvas.height = 1000;
+
+  // v2.6の保存画像は1200×1400で、マップは x=100 / y=260 / 1000角。
+  // 形式が異なる画像の場合は画像全体を1000角へ合わせる。
+  if (img.naturalWidth === 1200 && img.naturalHeight === 1400) {
+    cropCtx.drawImage(img, 100, 260, 1000, 1000, 0, 0, 1000, 1000);
+  } else {
+    cropCtx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, 0, 0, 1000, 1000);
+  }
+
+  return cropCanvas.toDataURL("image/png");
 }
 
 function resizeCanvas() {
-  const headerHeight = document.querySelector("header").offsetHeight;
-  const footerHeight = document.querySelector("footer").offsetHeight;
-  const availableWidth = window.innerWidth;
-  const availableHeight = window.innerHeight - headerHeight - footerHeight;
+const headerHeight = document.querySelector("header").offsetHeight;
+const footerHeight = document.querySelector("footer").offsetHeight;
 
-  canvasSize = Math.min(availableWidth * 0.92, availableHeight * 0.92);
+const availableWidth = window.innerWidth;
+const availableHeight = window.innerHeight - headerHeight - footerHeight;
+
+canvasSize = Math.min(
+  availableWidth * 0.92,
+  availableHeight * 0.92
+);
+
+canvasOffsetX = (availableWidth - canvasSize) / 2;
+canvasOffsetY = (availableHeight - canvasSize) / 2;
   const ratio = window.devicePixelRatio || 1;
 
-  baseCanvas.width = drawCanvas.width = Math.round(canvasSize * ratio);
-  baseCanvas.height = drawCanvas.height = Math.round(canvasSize * ratio);
+baseCanvas.width = drawCanvas.width = Math.round(canvasSize * ratio);
+baseCanvas.height = drawCanvas.height = Math.round(canvasSize * ratio);
 
-  canvasWrap.style.width = `${canvasSize}px`;
-  canvasWrap.style.height = `${canvasSize}px`;
+canvasWrap.style.width = `${canvasSize}px`;
+canvasWrap.style.height = `${canvasSize}px`;
 
-  baseCanvas.style.width = "100%";
-  baseCanvas.style.height = "100%";
-  drawCanvas.style.width = "100%";
-  drawCanvas.style.height = "100%";
+baseCanvas.style.width = "100%";
+baseCanvas.style.height = "100%";
+
+drawCanvas.style.width = "100%";
+drawCanvas.style.height = "100%";
 
   baseCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
   drawCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -129,7 +229,9 @@ function resizeCanvas() {
 function drawBase() {
   const width = baseCanvas.clientWidth;
   const height = baseCanvas.clientHeight;
+
   const size = Math.min(width, height);
+
   const x = (width - size) / 2;
   const y = (height - size) / 2;
 
@@ -185,9 +287,11 @@ function drawTick(ctx, x1, y1, x2, y2, size = baseCanvas.clientWidth) {
 
 function getPos(e) {
   const rect = drawCanvas.getBoundingClientRect();
+  const p = e.touches ? e.touches[0] : e;
+
   return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top,
+    x: p.clientX - rect.left,
+    y: p.clientY - rect.top,
   };
 }
 
@@ -195,7 +299,6 @@ function startDraw(e) {
   if (isSaving) return;
   e.preventDefault();
   drawing = true;
-  drawCanvas.setPointerCapture?.(e.pointerId);
 
   const pos = getPos(e);
   lastX = pos.x;
@@ -207,18 +310,18 @@ function draw(e) {
   e.preventDefault();
 
   const pos = getPos(e);
+
   drawCtx.lineCap = "round";
   drawCtx.lineJoin = "round";
 
-  if (tool === "pen") {
-    drawCtx.globalCompositeOperation = "source-over";
-    drawCtx.strokeStyle = penColor;
-    drawCtx.lineWidth = penSize;
-  } else {
-    drawCtx.globalCompositeOperation = "destination-out";
-    drawCtx.lineWidth = penSize;
-  }
-
+if (tool === "pen") {
+  drawCtx.globalCompositeOperation = "source-over";
+  drawCtx.strokeStyle = penColor;
+  drawCtx.lineWidth = penSize;
+} else {
+  drawCtx.globalCompositeOperation = "destination-out";
+  drawCtx.lineWidth = penSize;
+}
   drawCtx.beginPath();
   drawCtx.moveTo(lastX, lastY);
   drawCtx.lineTo(pos.x, pos.y);
@@ -228,33 +331,59 @@ function draw(e) {
   lastY = pos.y;
 }
 
-function endDraw(e) {
+function endDraw() {
   if (!drawing) return;
 
   drawing = false;
   drawCtx.globalCompositeOperation = "source-over";
-  if (e?.pointerId !== undefined && drawCanvas.hasPointerCapture?.(e.pointerId)) {
-    drawCanvas.releasePointerCapture(e.pointerId);
-  }
   saveHistory();
 }
 
-function getHistoryForCurrentSide() {
-  return currentSide === "front" ? frontHistory : rearHistory;
-}
-
-function createTransparentState() {
-  drawCtx.clearRect(0, 0, drawCanvas.clientWidth, drawCanvas.clientHeight);
-  return drawCanvas.toDataURL("image/png");
-}
-
 function saveHistory() {
-  const historyForSide = getHistoryForCurrentSide();
+  const historyForSide = currentSide === "front" ? frontHistory : rearHistory;
   historyForSide.push(drawCanvas.toDataURL("image/png"));
 
   if (historyForSide.length > 20) {
     historyForSide.shift();
   }
+}
+
+function restoreFromDataUrl(dataUrl) {
+  const img = new Image();
+
+  img.onload = () => {
+    drawCtx.clearRect(0, 0, drawCanvas.clientWidth, drawCanvas.clientHeight);
+    drawCtx.drawImage(
+      img,
+      0,
+      0,
+      drawCanvas.clientWidth,
+      drawCanvas.clientHeight
+    );
+  };
+
+  img.onerror = () => {
+    console.error("描画履歴の読み込みに失敗しました。");
+  };
+
+  img.src = dataUrl;
+}
+
+function loadCurrentSide() {
+  const historyForSide = currentSide === "front" ? frontHistory : rearHistory;
+
+  if (historyForSide.length === 0) {
+    drawCtx.clearRect(0, 0, drawCanvas.clientWidth, drawCanvas.clientHeight);
+    return;
+  }
+
+  restoreFromDataUrl(historyForSide[historyForSide.length - 1]);
+}
+
+function getLatestImage(historyForSide) {
+  return historyForSide.length > 0
+    ? historyForSide[historyForSide.length - 1]
+    : "";
 }
 
 function loadImage(dataUrl) {
@@ -266,107 +395,9 @@ function loadImage(dataUrl) {
 
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("画像の読み込みに失敗しました。"));
+    img.onerror = () => reject(new Error("描画画像の読み込みに失敗しました。"));
     img.src = dataUrl;
   });
-}
-
-async function restoreFromDataUrl(dataUrl) {
-  const img = await loadImage(dataUrl);
-  drawCtx.clearRect(0, 0, drawCanvas.clientWidth, drawCanvas.clientHeight);
-
-  if (img) {
-    drawCtx.drawImage(
-      img,
-      0,
-      0,
-      drawCanvas.clientWidth,
-      drawCanvas.clientHeight
-    );
-  }
-}
-
-function loadCurrentSide() {
-  const historyForSide = getHistoryForCurrentSide();
-
-  if (historyForSide.length === 0) {
-    drawCtx.clearRect(0, 0, drawCanvas.clientWidth, drawCanvas.clientHeight);
-    return;
-  }
-
-  restoreFromDataUrl(historyForSide[historyForSide.length - 1]).catch((error) => {
-    console.error(error);
-  });
-}
-
-function getLatestImage(historyForSide) {
-  return historyForSide.length > 0
-    ? historyForSide[historyForSide.length - 1]
-    : "";
-}
-
-// 保存画像は1200×1400で、レンズマップ部分は (100,260) から1000×1000。
-async function extractDrawingLayer(savedImageDataUrl) {
-  if (!savedImageDataUrl) return "";
-
-  const img = await loadImage(savedImageDataUrl);
-  const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = drawCanvas.width;
-  tempCanvas.height = drawCanvas.height;
-
-  const tempCtx = tempCanvas.getContext("2d");
-  if (!tempCtx) {
-    throw new Error("読込用キャンバスを作成できませんでした。");
-  }
-
-  tempCtx.drawImage(
-    img,
-    100,
-    260,
-    1000,
-    1000,
-    0,
-    0,
-    tempCanvas.width,
-    tempCanvas.height
-  );
-
-  return tempCanvas.toDataURL("image/png");
-}
-
-async function fetchSavedImages() {
-  if (!lensId) {
-    console.log("レンズIDがないため、保存画像を読み込みません。");
-    return;
-  }
-
-  const response = await fetch(
-    `${GAS_WEB_APP_URL}?id=${encodeURIComponent(lensId)}&t=${Date.now()}`,
-    { method: "GET", cache: "no-store" }
-  );
-
-  if (!response.ok) {
-    throw new Error(`保存画像の取得に失敗しました（HTTP ${response.status}）`);
-  }
-
-  const result = await response.json();
-  if (!result.success) {
-    throw new Error(result.error || "保存画像の取得に失敗しました。");
-  }
-
-  const emptyState = createTransparentState();
-  const [frontState, rearState] = await Promise.all([
-    result.frontImage ? extractDrawingLayer(result.frontImage) : emptyState,
-    result.rearImage ? extractDrawingLayer(result.rearImage) : emptyState,
-  ]);
-
-  frontHistory = [frontState];
-  rearHistory = [rearState];
-
-  console.log("========== 保存画像 ==========");
-  console.log("Front :", result.frontExists ? "あり" : "なし");
-  console.log("Rear  :", result.rearExists ? "あり" : "なし");
-  console.log("=============================");
 }
 
 async function makeSingleLensMapImage(sideLabel, drawingDataUrl) {
@@ -436,10 +467,12 @@ async function exportLensMap() {
     const frontData = getLatestImage(frontHistory);
     const rearData = getLatestImage(rearHistory);
 
+    // Front/Rearの両方を必ず別画像として保存する。
     const [frontImage, rearImage] = await Promise.all([
       makeSingleLensMapImage("Front", frontData),
       makeSingleLensMapImage("Rear", rearData),
     ]);
+
 
     const payload = {
       id: lensId,
@@ -450,49 +483,58 @@ async function exportLensMap() {
       rearImage,
     };
 
-    const response = await fetch(GAS_WEB_APP_URL, {
-      method: "POST",
-      cache: "no-store",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8",
-      },
-      body: JSON.stringify(payload),
-    });
+    // GAS Webアプリは別ドメインのため、応答本文を読まずに送信する。
+    // text/plainにすることでプリフライトを避ける。
+const response = await fetch(GAS_WEB_APP_URL, {
+  method: "POST",
+  cache: "no-store",
+  headers: {
+    "Content-Type": "text/plain;charset=utf-8",
+  },
+  body: JSON.stringify(payload),
+});
 
-    const result = await response.json();
-    if (!result.success) {
-      throw new Error(result.error || "保存に失敗しました。");
-    }
+const result = await response.json();
 
-    const msg = document.createElement("div");
-    msg.style.position = "fixed";
-    msg.style.left = "50%";
-    msg.style.top = "50%";
-    msg.style.transform = "translate(-50%, -50%)";
-    msg.style.padding = "20px 30px";
-    msg.style.background = "rgba(0,0,0,0.85)";
-    msg.style.color = "#fff";
-    msg.style.borderRadius = "12px";
-    msg.style.fontSize = "18px";
-    msg.style.textAlign = "center";
-    msg.style.zIndex = "9999";
-    msg.innerHTML = "保存が完了しました。";
+if (result.success) {
+  const msg = document.createElement("div");
+  msg.style.position = "fixed";
+  msg.style.left = "50%";
+  msg.style.top = "50%";
+  msg.style.transform = "translate(-50%, -50%)";
+  msg.style.padding = "20px 30px";
+  msg.style.background = "rgba(0,0,0,0.85)";
+  msg.style.color = "#fff";
+  msg.style.borderRadius = "12px";
+  msg.style.fontSize = "18px";
+  msg.style.textAlign = "center";
+  msg.style.zIndex = "9999";
+  msg.innerHTML = "保存が完了しました。<br>AppSheetへ戻ります…";
 
-    const returnBtn = document.createElement("button");
-    returnBtn.textContent = "AppSheetへ戻る";
-    returnBtn.style.display = "block";
-    returnBtn.style.margin = "16px auto 0";
-    returnBtn.style.padding = "10px 18px";
-    returnBtn.style.border = "none";
-    returnBtn.style.borderRadius = "10px";
-    returnBtn.style.background = "#0a66ff";
-    returnBtn.style.color = "#fff";
-    returnBtn.style.fontSize = "16px";
-    returnBtn.style.fontWeight = "700";
-    returnBtn.onclick = returnToAppSheet;
+  document.body.appendChild(msg);
 
-    msg.appendChild(returnBtn);
-    document.body.appendChild(msg);
+const returnBtn = document.createElement("button");
+
+returnBtn.textContent = "AppSheetへ戻る";
+returnBtn.style.display = "block";
+returnBtn.style.margin = "16px auto 0";
+returnBtn.style.padding = "10px 18px";
+returnBtn.style.border = "none";
+returnBtn.style.borderRadius = "10px";
+returnBtn.style.background = "#0a66ff";
+returnBtn.style.color = "#fff";
+returnBtn.style.fontSize = "16px";
+returnBtn.style.fontWeight = "700";
+
+returnBtn.onclick = returnToAppSheet;
+msg.innerHTML = "保存が完了しました。";
+msg.appendChild(returnBtn);
+
+} else {
+  alert("保存に失敗しました。\n\n" + result.error);
+}
+// ↓ この行は一旦削除
+// alert("保存データを送信しました。数秒後にAppSheetへ戻って同期してください。");
   } catch (error) {
     console.error(error);
     alert(`保存に失敗しました。\n${error.message || error}`);
@@ -504,6 +546,7 @@ async function exportLensMap() {
 }
 
 function setPenSize(size, activeButton) {
+
   penSize = size;
 
   size05Btn.classList.remove("active");
@@ -515,29 +558,43 @@ function setPenSize(size, activeButton) {
   activeButton.classList.add("active");
 }
 
+
 // ---------- Controls ----------
 penBtn.onclick = () => {
   tool = "pen";
+
   penBtn.classList.add("active");
   eraserBtn.classList.remove("active");
+
 };
 
 eraserBtn.onclick = () => {
   tool = "eraser";
+
   eraserBtn.classList.add("active");
   penBtn.classList.remove("active");
+
 };
-
 undoBtn.onclick = () => {
-  const historyForSide = getHistoryForCurrentSide();
+  const historyForSide = currentSide === "front" ? frontHistory : rearHistory;
+  const hasSavedImage = currentSide === "front"
+    ? frontHasSavedImage
+    : rearHasSavedImage;
 
-  // 最初に読み込んだ保存状態より前には戻さない。
-  if (historyForSide.length <= 1) return;
+  if (historyForSide.length === 0) return;
+
+  // 保存済み画像が初期状態の場合、それより前には戻さない。
+  if (historyForSide.length === 1 && hasSavedImage) return;
+
+  // 新規の空マップで最初の1画をUndoした場合は白紙へ戻す。
+  if (historyForSide.length === 1) {
+    historyForSide.length = 0;
+    drawCtx.clearRect(0, 0, drawCanvas.clientWidth, drawCanvas.clientHeight);
+    return;
+  }
 
   historyForSide.pop();
-  restoreFromDataUrl(historyForSide[historyForSide.length - 1]).catch((error) => {
-    console.error(error);
-  });
+  restoreFromDataUrl(historyForSide[historyForSide.length - 1]);
 };
 
 clearBtn.onclick = () => {
@@ -548,6 +605,7 @@ clearBtn.onclick = () => {
 };
 
 saveBtn.onclick = exportLensMap;
+
 backBtn.onclick = returnToAppSheet;
 
 size05Btn.onclick = () => setPenSize(0.5, size05Btn);
@@ -558,15 +616,19 @@ size8Btn.onclick = () => setPenSize(8, size8Btn);
 
 surfaceBtn.onclick = () => {
   penColor = "#111";
+
   surfaceBtn.classList.add("active");
   insideBtn.classList.remove("active");
+
   updatePenIcons();
 };
 
 insideBtn.onclick = () => {
   penColor = "#d32f2f";
+
   insideBtn.classList.add("active");
   surfaceBtn.classList.remove("active");
+
   updatePenIcons();
 };
 
@@ -598,37 +660,29 @@ drawCanvas.addEventListener("pointerdown", startDraw);
 drawCanvas.addEventListener("pointermove", draw);
 drawCanvas.addEventListener("pointerup", endDraw);
 drawCanvas.addEventListener("pointercancel", endDraw);
+drawCanvas.addEventListener("pointerleave", endDraw);
 
 window.addEventListener("resize", resizeCanvas);
 
 // ---------- Start ----------
 (async () => {
+
   setPenSize(0.5, size05Btn);
+
   penBtn.classList.add("active");
   eraserBtn.classList.remove("active");
+
   updatePenIcons();
 
   resizeCanvas();
 
-  try {
-    saveBtn.disabled = true;
-    saveBtn.textContent = "読込中...";
-    await fetchSavedImages();
-  } catch (error) {
-    console.error(error);
-    alert(`保存済み画像の読み込みに失敗しました。\n${error.message || error}`);
-
-    const emptyState = createTransparentState();
-    frontHistory = [emptyState];
-    rearHistory = [emptyState];
-  } finally {
-    saveBtn.disabled = false;
-    saveBtn.textContent = "保存";
-  }
+  // 保存済みFront/Rear画像を取得して履歴へ登録
+  await fetchSavedImages();
 
   if (initialSide === "rear") {
     rearBtn.onclick();
   } else {
     frontBtn.onclick();
   }
+
 })();
