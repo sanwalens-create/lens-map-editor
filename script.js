@@ -1,9 +1,9 @@
 // ========================================
 // Lens Map Editor
-// Version 2.7.0
+// Version 2.8.0
 // ========================================
 
-const APP_VERSION = "v2.7.0";
+const APP_VERSION = "v2.8.0";
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby27SYVZL79QHnLXPVa0Sd6NrNwWR9R23iM9yMsxv4XUOlwVKGZlxv10-LSdwFNiNcVkQ/exec";
 
 const baseCanvas = document.getElementById("baseCanvas");
@@ -29,29 +29,21 @@ const size8Btn = document.getElementById("size8Btn");
 const surfaceBtn = document.getElementById("surfaceBtn");
 const insideBtn = document.getElementById("insideBtn");
 const title = document.getElementById("title");
-const frontBtn = document.getElementById("frontBtn");
-const rearBtn = document.getElementById("rearBtn");
 
 let tool = "pen";
-
 let penSize = 1;
-
 let penColor = "#111";
 
 let drawing = false;
 let lastX = 0;
 let lastY = 0;
-let currentSide = "front";
 let isSaving = false;
 let canvasOffsetX = 0;
 let canvasOffsetY = 0;
 let canvasSize = 0;
 
-let frontHistory = [];
-let rearHistory = [];
-
-let frontHasSavedImage = false;
-let rearHasSavedImage = false;
+let history = [];
+let hasSavedImage = false;
 
 // ---------- Lens information from AppSheet ----------
 const params = new URLSearchParams(window.location.search);
@@ -62,7 +54,8 @@ const lensId = params.get("id") || "";
 const lensName = params.get("lens") || "";
 const serialNo = params.get("serial") || "";
 const receivedDate = params.get("received") || "";
-const initialSide = (params.get("side") || "front").toLowerCase();
+const requestedSide = (params.get("side") || "front").toLowerCase();
+const currentSide = requestedSide === "rear" ? "rear" : "front";
 const returnUrl = params.get("returnUrl") || params.get("return") || "";
 
 function isSafeReturnUrl(url) {
@@ -97,21 +90,19 @@ console.log({
   lensName,
   serialNo,
   receivedDate,
-  initialSide,
+  currentSide,
   returnUrl
 });
 
 function updateTitle() {
   const sideLabel = currentSide === "front" ? "Front" : "Rear";
-  title.textContent = lensName
-    ? `${lensName} ${sideLabel}`
-    : sideLabel;
+  title.textContent = lensName ? `${lensName} ${sideLabel}` : sideLabel;
 }
 
 // ========================================
-// 保存済み画像をGASから取得して履歴へ登録
+// 現在の面の保存済み画像をGASから取得して履歴へ登録
 // ========================================
-async function fetchSavedImages() {
+async function fetchSavedImage() {
   if (!lensId) {
     console.log("レンズIDがないため、保存済み画像を読み込みません。");
     return;
@@ -136,25 +127,22 @@ async function fetchSavedImages() {
       throw new Error(result.error || "保存済み画像の取得に失敗しました。");
     }
 
-    const [frontDrawing, rearDrawing] = await Promise.all([
-      savedMapToDrawingDataUrl(result.frontImage || ""),
-      savedMapToDrawingDataUrl(result.rearImage || "")
-    ]);
+    const savedImage = currentSide === "front"
+      ? result.frontImage || ""
+      : result.rearImage || "";
 
-    if (frontDrawing) {
-      frontHistory = [frontDrawing];
-      frontHasSavedImage = true;
+    const drawingDataUrl = await savedMapToDrawingDataUrl(savedImage);
+
+    if (drawingDataUrl) {
+      history = [drawingDataUrl];
+      hasSavedImage = true;
+      loadCurrentDrawing();
     }
 
-    if (rearDrawing) {
-      rearHistory = [rearDrawing];
-      rearHasSavedImage = true;
-    }
-
-    console.log("========== 保存済み画像 ==========");
-    console.log("Front画像:", frontDrawing ? "読込完了" : "なし");
-    console.log("Rear画像 :", rearDrawing ? "読込完了" : "なし");
-    console.log("==================================");
+    console.log(
+      `${currentSide === "front" ? "Front" : "Rear"}画像:`,
+      drawingDataUrl ? "読込完了" : "なし"
+    );
   } catch (error) {
     console.error("保存済み画像の読込みに失敗しました。", error);
   }
@@ -179,59 +167,65 @@ async function savedMapToDrawingDataUrl(dataUrl) {
   cropCanvas.width = 1000;
   cropCanvas.height = 1000;
 
-  // v2.6の保存画像は1200×1400で、マップは x=100 / y=260 / 1000角。
-  // 形式が異なる画像の場合は画像全体を1000角へ合わせる。
   if (img.naturalWidth === 1200 && img.naturalHeight === 1400) {
     cropCtx.drawImage(img, 100, 260, 1000, 1000, 0, 0, 1000, 1000);
   } else {
-    cropCtx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, 0, 0, 1000, 1000);
+    cropCtx.drawImage(
+      img,
+      0,
+      0,
+      img.naturalWidth,
+      img.naturalHeight,
+      0,
+      0,
+      1000,
+      1000
+    );
   }
 
   return cropCanvas.toDataURL("image/png");
 }
 
 function resizeCanvas() {
-const headerHeight = document.querySelector("header").offsetHeight;
-const footerHeight = document.querySelector("footer").offsetHeight;
+  const headerHeight = document.querySelector("header").offsetHeight;
+  const footerHeight = document.querySelector("footer").offsetHeight;
 
-const availableWidth = window.innerWidth;
-const availableHeight = window.innerHeight - headerHeight - footerHeight;
+  const availableWidth = window.innerWidth;
+  const availableHeight = window.innerHeight - headerHeight - footerHeight;
 
-canvasSize = Math.min(
-  availableWidth * 0.92,
-  availableHeight * 0.92
-);
+  canvasSize = Math.min(
+    availableWidth * 0.92,
+    availableHeight * 0.92
+  );
 
-canvasOffsetX = (availableWidth - canvasSize) / 2;
-canvasOffsetY = (availableHeight - canvasSize) / 2;
+  canvasOffsetX = (availableWidth - canvasSize) / 2;
+  canvasOffsetY = (availableHeight - canvasSize) / 2;
+
   const ratio = window.devicePixelRatio || 1;
 
-baseCanvas.width = drawCanvas.width = Math.round(canvasSize * ratio);
-baseCanvas.height = drawCanvas.height = Math.round(canvasSize * ratio);
+  baseCanvas.width = drawCanvas.width = Math.round(canvasSize * ratio);
+  baseCanvas.height = drawCanvas.height = Math.round(canvasSize * ratio);
 
-canvasWrap.style.width = `${canvasSize}px`;
-canvasWrap.style.height = `${canvasSize}px`;
+  canvasWrap.style.width = `${canvasSize}px`;
+  canvasWrap.style.height = `${canvasSize}px`;
 
-baseCanvas.style.width = "100%";
-baseCanvas.style.height = "100%";
-
-drawCanvas.style.width = "100%";
-drawCanvas.style.height = "100%";
+  baseCanvas.style.width = "100%";
+  baseCanvas.style.height = "100%";
+  drawCanvas.style.width = "100%";
+  drawCanvas.style.height = "100%";
 
   baseCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
   drawCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
   drawBase();
-  loadCurrentSide();
+  loadCurrentDrawing();
   updateTitle();
 }
 
 function drawBase() {
   const width = baseCanvas.clientWidth;
   const height = baseCanvas.clientHeight;
-
   const size = Math.min(width, height);
-
   const x = (width - size) / 2;
   const y = (height - size) / 2;
 
@@ -291,12 +285,13 @@ function getPos(e) {
 
   return {
     x: p.clientX - rect.left,
-    y: p.clientY - rect.top,
+    y: p.clientY - rect.top
   };
 }
 
 function startDraw(e) {
   if (isSaving) return;
+
   e.preventDefault();
   drawing = true;
 
@@ -307,6 +302,7 @@ function startDraw(e) {
 
 function draw(e) {
   if (!drawing || isSaving) return;
+
   e.preventDefault();
 
   const pos = getPos(e);
@@ -314,14 +310,15 @@ function draw(e) {
   drawCtx.lineCap = "round";
   drawCtx.lineJoin = "round";
 
-if (tool === "pen") {
-  drawCtx.globalCompositeOperation = "source-over";
-  drawCtx.strokeStyle = penColor;
-  drawCtx.lineWidth = penSize;
-} else {
-  drawCtx.globalCompositeOperation = "destination-out";
-  drawCtx.lineWidth = penSize;
-}
+  if (tool === "pen") {
+    drawCtx.globalCompositeOperation = "source-over";
+    drawCtx.strokeStyle = penColor;
+    drawCtx.lineWidth = penSize;
+  } else {
+    drawCtx.globalCompositeOperation = "destination-out";
+    drawCtx.lineWidth = penSize;
+  }
+
   drawCtx.beginPath();
   drawCtx.moveTo(lastX, lastY);
   drawCtx.lineTo(pos.x, pos.y);
@@ -340,11 +337,10 @@ function endDraw() {
 }
 
 function saveHistory() {
-  const historyForSide = currentSide === "front" ? frontHistory : rearHistory;
-  historyForSide.push(drawCanvas.toDataURL("image/png"));
+  history.push(drawCanvas.toDataURL("image/png"));
 
-  if (historyForSide.length > 20) {
-    historyForSide.shift();
+  if (history.length > 20) {
+    history.shift();
   }
 }
 
@@ -369,21 +365,17 @@ function restoreFromDataUrl(dataUrl) {
   img.src = dataUrl;
 }
 
-function loadCurrentSide() {
-  const historyForSide = currentSide === "front" ? frontHistory : rearHistory;
-
-  if (historyForSide.length === 0) {
+function loadCurrentDrawing() {
+  if (history.length === 0) {
     drawCtx.clearRect(0, 0, drawCanvas.clientWidth, drawCanvas.clientHeight);
     return;
   }
 
-  restoreFromDataUrl(historyForSide[historyForSide.length - 1]);
+  restoreFromDataUrl(history[history.length - 1]);
 }
 
-function getLatestImage(historyForSide) {
-  return historyForSide.length > 0
-    ? historyForSide[historyForSide.length - 1]
-    : "";
+function getLatestImage() {
+  return history.length > 0 ? history[history.length - 1] : "";
 }
 
 function loadImage(dataUrl) {
@@ -464,77 +456,62 @@ async function exportLensMap() {
   saveBtn.textContent = "保存中...";
 
   try {
-    const frontData = getLatestImage(frontHistory);
-    const rearData = getLatestImage(rearHistory);
-
-    // Front/Rearの両方を必ず別画像として保存する。
-    const [frontImage, rearImage] = await Promise.all([
-      makeSingleLensMapImage("Front", frontData),
-      makeSingleLensMapImage("Rear", rearData),
-    ]);
-
+    const sideLabel = currentSide === "front" ? "Front" : "Rear";
+    const image = await makeSingleLensMapImage(sideLabel, getLatestImage());
 
     const payload = {
       id: lensId,
       lens: lensName,
       serial: serialNo,
       received: receivedDate,
-      frontImage,
-      rearImage,
+      frontImage: currentSide === "front" ? image : "",
+      rearImage: currentSide === "rear" ? image : ""
     };
 
-    // GAS Webアプリは別ドメインのため、応答本文を読まずに送信する。
-    // text/plainにすることでプリフライトを避ける。
-const response = await fetch(GAS_WEB_APP_URL, {
-  method: "POST",
-  cache: "no-store",
-  headers: {
-    "Content-Type": "text/plain;charset=utf-8",
-  },
-  body: JSON.stringify(payload),
-});
+    const response = await fetch(GAS_WEB_APP_URL, {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(payload)
+    });
 
-const result = await response.json();
+    const result = await response.json();
 
-if (result.success) {
-  const msg = document.createElement("div");
-  msg.style.position = "fixed";
-  msg.style.left = "50%";
-  msg.style.top = "50%";
-  msg.style.transform = "translate(-50%, -50%)";
-  msg.style.padding = "20px 30px";
-  msg.style.background = "rgba(0,0,0,0.85)";
-  msg.style.color = "#fff";
-  msg.style.borderRadius = "12px";
-  msg.style.fontSize = "18px";
-  msg.style.textAlign = "center";
-  msg.style.zIndex = "9999";
-  msg.innerHTML = "保存が完了しました。<br>AppSheetへ戻ります…";
+    if (!result.success) {
+      throw new Error(result.error || "保存に失敗しました。");
+    }
 
-  document.body.appendChild(msg);
+    const msg = document.createElement("div");
+    msg.style.position = "fixed";
+    msg.style.left = "50%";
+    msg.style.top = "50%";
+    msg.style.transform = "translate(-50%, -50%)";
+    msg.style.padding = "20px 30px";
+    msg.style.background = "rgba(0,0,0,0.85)";
+    msg.style.color = "#fff";
+    msg.style.borderRadius = "12px";
+    msg.style.fontSize = "18px";
+    msg.style.textAlign = "center";
+    msg.style.zIndex = "9999";
+    msg.innerHTML = "保存が完了しました。";
 
-const returnBtn = document.createElement("button");
+    const returnBtn = document.createElement("button");
+    returnBtn.textContent = "AppSheetへ戻る";
+    returnBtn.style.display = "block";
+    returnBtn.style.margin = "16px auto 0";
+    returnBtn.style.padding = "10px 18px";
+    returnBtn.style.border = "none";
+    returnBtn.style.borderRadius = "10px";
+    returnBtn.style.background = "#0a66ff";
+    returnBtn.style.color = "#fff";
+    returnBtn.style.fontSize = "16px";
+    returnBtn.style.fontWeight = "700";
+    returnBtn.onclick = returnToAppSheet;
 
-returnBtn.textContent = "AppSheetへ戻る";
-returnBtn.style.display = "block";
-returnBtn.style.margin = "16px auto 0";
-returnBtn.style.padding = "10px 18px";
-returnBtn.style.border = "none";
-returnBtn.style.borderRadius = "10px";
-returnBtn.style.background = "#0a66ff";
-returnBtn.style.color = "#fff";
-returnBtn.style.fontSize = "16px";
-returnBtn.style.fontWeight = "700";
-
-returnBtn.onclick = returnToAppSheet;
-msg.innerHTML = "保存が完了しました。";
-msg.appendChild(returnBtn);
-
-} else {
-  alert("保存に失敗しました。\n\n" + result.error);
-}
-// ↓ この行は一旦削除
-// alert("保存データを送信しました。数秒後にAppSheetへ戻って同期してください。");
+    msg.appendChild(returnBtn);
+    document.body.appendChild(msg);
   } catch (error) {
     console.error(error);
     alert(`保存に失敗しました。\n${error.message || error}`);
@@ -546,7 +523,6 @@ msg.appendChild(returnBtn);
 }
 
 function setPenSize(size, activeButton) {
-
   penSize = size;
 
   size05Btn.classList.remove("active");
@@ -558,43 +534,32 @@ function setPenSize(size, activeButton) {
   activeButton.classList.add("active");
 }
 
-
 // ---------- Controls ----------
 penBtn.onclick = () => {
   tool = "pen";
-
   penBtn.classList.add("active");
   eraserBtn.classList.remove("active");
-
 };
 
 eraserBtn.onclick = () => {
   tool = "eraser";
-
   eraserBtn.classList.add("active");
   penBtn.classList.remove("active");
-
 };
+
 undoBtn.onclick = () => {
-  const historyForSide = currentSide === "front" ? frontHistory : rearHistory;
-  const hasSavedImage = currentSide === "front"
-    ? frontHasSavedImage
-    : rearHasSavedImage;
+  if (history.length === 0) return;
 
-  if (historyForSide.length === 0) return;
+  if (history.length === 1 && hasSavedImage) return;
 
-  // 保存済み画像が初期状態の場合、それより前には戻さない。
-  if (historyForSide.length === 1 && hasSavedImage) return;
-
-  // 新規の空マップで最初の1画をUndoした場合は白紙へ戻す。
-  if (historyForSide.length === 1) {
-    historyForSide.length = 0;
+  if (history.length === 1) {
+    history.length = 0;
     drawCtx.clearRect(0, 0, drawCanvas.clientWidth, drawCanvas.clientHeight);
     return;
   }
 
-  historyForSide.pop();
-  restoreFromDataUrl(historyForSide[historyForSide.length - 1]);
+  history.pop();
+  restoreFromDataUrl(history[history.length - 1]);
 };
 
 clearBtn.onclick = () => {
@@ -605,7 +570,6 @@ clearBtn.onclick = () => {
 };
 
 saveBtn.onclick = exportLensMap;
-
 backBtn.onclick = returnToAppSheet;
 
 size05Btn.onclick = () => setPenSize(0.5, size05Btn);
@@ -616,40 +580,21 @@ size8Btn.onclick = () => setPenSize(8, size8Btn);
 
 surfaceBtn.onclick = () => {
   penColor = "#111";
-
   surfaceBtn.classList.add("active");
   insideBtn.classList.remove("active");
-
   updatePenIcons();
 };
 
 insideBtn.onclick = () => {
   penColor = "#d32f2f";
-
   insideBtn.classList.add("active");
   surfaceBtn.classList.remove("active");
-
   updatePenIcons();
-};
-
-frontBtn.onclick = () => {
-  currentSide = "front";
-  frontBtn.classList.add("active");
-  rearBtn.classList.remove("active");
-  loadCurrentSide();
-  updateTitle();
-};
-
-rearBtn.onclick = () => {
-  currentSide = "rear";
-  rearBtn.classList.add("active");
-  frontBtn.classList.remove("active");
-  loadCurrentSide();
-  updateTitle();
 };
 
 function updatePenIcons() {
   const color = penColor === "#111" ? "#111" : "#d32f2f";
+
   document.querySelectorAll(".penIcon").forEach((icon) => {
     icon.style.color = color;
   });
@@ -666,23 +611,13 @@ window.addEventListener("resize", resizeCanvas);
 
 // ---------- Start ----------
 (async () => {
-
   setPenSize(0.5, size05Btn);
 
   penBtn.classList.add("active");
   eraserBtn.classList.remove("active");
 
   updatePenIcons();
-
   resizeCanvas();
 
-  // 保存済みFront/Rear画像を取得して履歴へ登録
-  await fetchSavedImages();
-
-  if (initialSide === "rear") {
-    rearBtn.onclick();
-  } else {
-    frontBtn.onclick();
-  }
-
+  await fetchSavedImage();
 })();
