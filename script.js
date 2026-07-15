@@ -343,8 +343,6 @@ function getTouchCenter(a, b) {
 }
 
 function beginPan(pointer) {
-  if (viewScale <= 1) return;
-
   panPointerId = pointer.pointerId;
   panLastX = pointer.clientX;
   panLastY = pointer.clientY;
@@ -498,22 +496,11 @@ function moveTouchGesture(e) {
     viewScale = nextScale;
     viewX = center.x - pinchBaseCenterX - viewScale * pinchLocalX;
     viewY = center.y - pinchBaseCenterY - viewScale * pinchLocalY;
-
-    if (viewScale <= 1.01) {
-      viewScale = 1;
-      viewX = 0;
-      viewY = 0;
-    }
-
     applyViewTransform();
     return;
   }
 
-  if (
-    viewScale > 1 &&
-    touchPointers.size === 1 &&
-    panPointerId === e.pointerId
-  ) {
+  if (touchPointers.size === 1 && panPointerId === e.pointerId) {
     viewX += e.clientX - panLastX;
     viewY += e.clientY - panLastY;
     panLastX = e.clientX;
@@ -731,20 +718,7 @@ async function exportLensMap() {
     msg.style.zIndex = "9999";
     msg.innerHTML = "保存が完了しました。";
 
-    const returnBtn = document.createElement("button");
-    returnBtn.textContent = "AppSheetへ戻る";
-    returnBtn.style.display = "block";
-    returnBtn.style.margin = "16px auto 0";
-    returnBtn.style.padding = "10px 18px";
-    returnBtn.style.border = "none";
-    returnBtn.style.borderRadius = "10px";
-    returnBtn.style.background = "#0a66ff";
-    returnBtn.style.color = "#fff";
-    returnBtn.style.fontSize = "16px";
-    returnBtn.style.fontWeight = "700";
-    returnBtn.onclick = returnToAppSheet;
-
-    msg.appendChild(returnBtn);
+    msg.innerHTML = "保存が完了しました。<br><br>この画面を閉じるとAppSheetへ戻れます。";
     document.body.appendChild(msg);
   } catch (error) {
     console.error(error);
