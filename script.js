@@ -718,7 +718,7 @@ async function exportLensMap() {
     msg.style.zIndex = "9999";
     msg.innerHTML = "保存が完了しました。";
 
-    msg.innerHTML = "保存が完了しました。<br><br>この画面を閉じるとAppSheetへ戻れます。";
+    msg.innerHTML = "保存が完了しました。<br><br>画面左上からAppSheetに戻ってください。";
     document.body.appendChild(msg);
   } catch (error) {
     console.error(error);
