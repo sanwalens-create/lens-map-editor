@@ -292,8 +292,18 @@ function getPos(e) {
 function startDraw(e) {
   if (isSaving) return;
 
+  // Apple Pencil以外では描画しない
+  if (e.pointerType !== "pen") {
+    drawing = false;
+    return;
+  }
+
   e.preventDefault();
+
   drawing = true;
+
+  // 描画中はPencilを追跡
+  drawCanvas.setPointerCapture(e.pointerId);
 
   const pos = getPos(e);
   lastX = pos.x;
@@ -302,6 +312,9 @@ function startDraw(e) {
 
 function draw(e) {
   if (!drawing || isSaving) return;
+
+  // Apple Pencil以外は無視
+  if (e.pointerType !== "pen") return;
 
   e.preventDefault();
 
@@ -328,10 +341,19 @@ function draw(e) {
   lastY = pos.y;
 }
 
-function endDraw() {
+function endDraw(e) {
   if (!drawing) return;
 
   drawing = false;
+
+  if (
+    e &&
+    drawCanvas.hasPointerCapture &&
+    drawCanvas.hasPointerCapture(e.pointerId)
+  ) {
+    drawCanvas.releasePointerCapture(e.pointerId);
+  }
+
   drawCtx.globalCompositeOperation = "source-over";
   saveHistory();
 }
