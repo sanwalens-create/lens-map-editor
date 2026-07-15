@@ -1,9 +1,9 @@
 // ========================================
 // Lens Map Editor
-// Version 2.8.0
+// Version 3.0.0
 // ========================================
 
-const APP_VERSION = "v2.8.0";
+const APP_VERSION = "v3.0.0";
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby27SYVZL79QHnLXPVa0Sd6NrNwWR9R23iM9yMsxv4XUOlwVKGZlxv10-LSdwFNiNcVkQ/exec";
 
 const baseCanvas = document.getElementById("baseCanvas");
@@ -41,6 +41,27 @@ let isSaving = false;
 let canvasOffsetX = 0;
 let canvasOffsetY = 0;
 let canvasSize = 0;
+
+// ---------- View controls (finger pan / pinch zoom) ----------
+const MIN_VIEW_SCALE = 1;
+const MAX_VIEW_SCALE = 4;
+
+let viewScale = 1;
+let viewX = 0;
+let viewY = 0;
+
+let activePenPointerId = null;
+const touchPointers = new Map();
+let panPointerId = null;
+let panLastX = 0;
+let panLastY = 0;
+
+let pinchStartDistance = 0;
+let pinchStartScale = 1;
+let pinchBaseCenterX = 0;
+let pinchBaseCenterY = 0;
+let pinchLocalX = 0;
+let pinchLocalY = 0;
 
 let history = [];
 let hasSavedImage = false;
@@ -208,11 +229,15 @@ function resizeCanvas() {
 
   canvasWrap.style.width = `${canvasSize}px`;
   canvasWrap.style.height = `${canvasSize}px`;
+  canvasWrap.style.transformOrigin = "center center";
+  canvasWrap.style.willChange = "transform";
+  canvasWrap.style.touchAction = "none";
 
   baseCanvas.style.width = "100%";
   baseCanvas.style.height = "100%";
   drawCanvas.style.width = "100%";
   drawCanvas.style.height = "100%";
+  drawCanvas.style.touchAction = "none";
 
   baseCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
   drawCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -220,6 +245,7 @@ function resizeCanvas() {
   drawBase();
   loadCurrentDrawing();
   updateTitle();
+  applyViewTransform();
 }
 
 function drawBase() {
@@ -279,30 +305,82 @@ function drawTick(ctx, x1, y1, x2, y2, size = baseCanvas.clientWidth) {
   ctx.stroke();
 }
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function applyViewTransform() {
+  canvasWrap.style.transform =
+    `translate3d(${viewX}px, ${viewY}px, 0) scale(${viewScale})`;
+}
+
 function getPos(e) {
   const rect = drawCanvas.getBoundingClientRect();
-  const p = e.touches ? e.touches[0] : e;
+
+  if (!rect.width || !rect.height) {
+    return { x: 0, y: 0 };
+  }
 
   return {
-    x: p.clientX - rect.left,
-    y: p.clientY - rect.top
+    x: (e.clientX - rect.left) * (drawCanvas.clientWidth / rect.width),
+    y: (e.clientY - rect.top) * (drawCanvas.clientHeight / rect.height)
   };
 }
 
-function startDraw(e) {
-  if (isSaving) return;
+function getFirstTwoTouches() {
+  return Array.from(touchPointers.values()).slice(0, 2);
+}
 
-  // Apple Pencil以外では描画しない
-  if (e.pointerType !== "pen") {
-    drawing = false;
-    return;
-  }
+function getTouchDistance(a, b) {
+  return Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+}
+
+function getTouchCenter(a, b) {
+  return {
+    x: (a.clientX + b.clientX) / 2,
+    y: (a.clientY + b.clientY) / 2
+  };
+}
+
+function beginPan(pointer) {
+  panPointerId = pointer.pointerId;
+  panLastX = pointer.clientX;
+  panLastY = pointer.clientY;
+}
+
+function beginPinch() {
+  const [a, b] = getFirstTwoTouches();
+  if (!a || !b) return;
+
+  const center = getTouchCenter(a, b);
+  const rect = canvasWrap.getBoundingClientRect();
+
+  pinchStartDistance = Math.max(1, getTouchDistance(a, b));
+  pinchStartScale = viewScale;
+
+  // CSS transformの基準となる、移動前のキャンバス中心
+  pinchBaseCenterX = rect.left + rect.width / 2 - viewX;
+  pinchBaseCenterY = rect.top + rect.height / 2 - viewY;
+
+  // ピンチ開始位置がキャンバス上のどこだったかを保持
+  pinchLocalX = (center.x - pinchBaseCenterX - viewX) / viewScale;
+  pinchLocalY = (center.y - pinchBaseCenterY - viewY) / viewScale;
+
+  panPointerId = null;
+}
+
+function startDraw(e) {
+  if (isSaving || e.pointerType !== "pen") return;
 
   e.preventDefault();
 
-  drawing = true;
+  // Pencilで描き始めたら、手のひら等のタッチ操作を解除
+  touchPointers.clear();
+  panPointerId = null;
+  pinchStartDistance = 0;
 
-  // 描画中はPencilを追跡
+  drawing = true;
+  activePenPointerId = e.pointerId;
   drawCanvas.setPointerCapture(e.pointerId);
 
   const pos = getPos(e);
@@ -311,10 +389,14 @@ function startDraw(e) {
 }
 
 function draw(e) {
-  if (!drawing || isSaving) return;
-
-  // Apple Pencil以外は無視
-  if (e.pointerType !== "pen") return;
+  if (
+    !drawing ||
+    isSaving ||
+    e.pointerType !== "pen" ||
+    e.pointerId !== activePenPointerId
+  ) {
+    return;
+  }
 
   e.preventDefault();
 
@@ -342,12 +424,18 @@ function draw(e) {
 }
 
 function endDraw(e) {
-  if (!drawing) return;
+  if (
+    !drawing ||
+    e.pointerType !== "pen" ||
+    e.pointerId !== activePenPointerId
+  ) {
+    return;
+  }
 
   drawing = false;
+  activePenPointerId = null;
 
   if (
-    e &&
     drawCanvas.hasPointerCapture &&
     drawCanvas.hasPointerCapture(e.pointerId)
   ) {
@@ -356,6 +444,117 @@ function endDraw(e) {
 
   drawCtx.globalCompositeOperation = "source-over";
   saveHistory();
+}
+
+function startTouchGesture(e) {
+  if (isSaving || drawing || e.pointerType !== "touch") return;
+
+  e.preventDefault();
+  touchPointers.set(e.pointerId, {
+    pointerId: e.pointerId,
+    clientX: e.clientX,
+    clientY: e.clientY
+  });
+
+  drawCanvas.setPointerCapture(e.pointerId);
+
+  if (touchPointers.size === 1) {
+    beginPan(touchPointers.get(e.pointerId));
+  } else if (touchPointers.size >= 2) {
+    beginPinch();
+  }
+}
+
+function moveTouchGesture(e) {
+  if (
+    isSaving ||
+    drawing ||
+    e.pointerType !== "touch" ||
+    !touchPointers.has(e.pointerId)
+  ) {
+    return;
+  }
+
+  e.preventDefault();
+
+  touchPointers.set(e.pointerId, {
+    pointerId: e.pointerId,
+    clientX: e.clientX,
+    clientY: e.clientY
+  });
+
+  if (touchPointers.size >= 2) {
+    const [a, b] = getFirstTwoTouches();
+    const center = getTouchCenter(a, b);
+    const distance = Math.max(1, getTouchDistance(a, b));
+    const nextScale = clamp(
+      pinchStartScale * (distance / pinchStartDistance),
+      MIN_VIEW_SCALE,
+      MAX_VIEW_SCALE
+    );
+
+    viewScale = nextScale;
+    viewX = center.x - pinchBaseCenterX - viewScale * pinchLocalX;
+    viewY = center.y - pinchBaseCenterY - viewScale * pinchLocalY;
+    applyViewTransform();
+    return;
+  }
+
+  if (touchPointers.size === 1 && panPointerId === e.pointerId) {
+    viewX += e.clientX - panLastX;
+    viewY += e.clientY - panLastY;
+    panLastX = e.clientX;
+    panLastY = e.clientY;
+    applyViewTransform();
+  }
+}
+
+function endTouchGesture(e) {
+  if (e.pointerType !== "touch") return;
+
+  touchPointers.delete(e.pointerId);
+
+  if (
+    drawCanvas.hasPointerCapture &&
+    drawCanvas.hasPointerCapture(e.pointerId)
+  ) {
+    drawCanvas.releasePointerCapture(e.pointerId);
+  }
+
+  if (touchPointers.size >= 2) {
+    beginPinch();
+  } else if (touchPointers.size === 1) {
+    const remaining = Array.from(touchPointers.values())[0];
+    beginPan(remaining);
+    pinchStartDistance = 0;
+  } else {
+    panPointerId = null;
+    pinchStartDistance = 0;
+  }
+}
+
+function handlePointerDown(e) {
+  if (e.pointerType === "pen") {
+    startDraw(e);
+  } else if (e.pointerType === "touch") {
+    startTouchGesture(e);
+  }
+}
+
+function handlePointerMove(e) {
+  if (e.pointerType === "pen") {
+    draw(e);
+  } else if (e.pointerType === "touch") {
+    moveTouchGesture(e);
+  }
+}
+
+function handlePointerEnd(e) {
+  if (e.pointerType === "pen") {
+    endDraw(e);
+  } else if (e.pointerType === "touch") {
+    endTouchGesture(e);
+  }
 }
 
 function saveHistory() {
@@ -623,11 +822,10 @@ function updatePenIcons() {
 }
 
 // ---------- Pointer Events ----------
-drawCanvas.addEventListener("pointerdown", startDraw);
-drawCanvas.addEventListener("pointermove", draw);
-drawCanvas.addEventListener("pointerup", endDraw);
-drawCanvas.addEventListener("pointercancel", endDraw);
-drawCanvas.addEventListener("pointerleave", endDraw);
+drawCanvas.addEventListener("pointerdown", handlePointerDown, { passive: false });
+drawCanvas.addEventListener("pointermove", handlePointerMove, { passive: false });
+drawCanvas.addEventListener("pointerup", handlePointerEnd, { passive: false });
+drawCanvas.addEventListener("pointercancel", handlePointerEnd, { passive: false });
 
 window.addEventListener("resize", resizeCanvas);
 
