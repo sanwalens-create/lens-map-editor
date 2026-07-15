@@ -343,6 +343,8 @@ function getTouchCenter(a, b) {
 }
 
 function beginPan(pointer) {
+  if (viewScale <= 1) return;
+
   panPointerId = pointer.pointerId;
   panLastX = pointer.clientX;
   panLastY = pointer.clientY;
@@ -496,11 +498,22 @@ function moveTouchGesture(e) {
     viewScale = nextScale;
     viewX = center.x - pinchBaseCenterX - viewScale * pinchLocalX;
     viewY = center.y - pinchBaseCenterY - viewScale * pinchLocalY;
+
+    if (viewScale <= 1.01) {
+      viewScale = 1;
+      viewX = 0;
+      viewY = 0;
+    }
+
     applyViewTransform();
     return;
   }
 
-  if (touchPointers.size === 1 && panPointerId === e.pointerId) {
+  if (
+    viewScale > 1 &&
+    touchPointers.size === 1 &&
+    panPointerId === e.pointerId
+  ) {
     viewX += e.clientX - panLastX;
     viewY += e.clientY - panLastY;
     panLastX = e.clientX;
