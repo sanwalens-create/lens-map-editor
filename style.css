@@ -260,3 +260,77 @@ button.active {
 button.active .icon {
     stroke: white;
 }
+
+/* ===== 横画面レイアウト ===== */
+@media (orientation: landscape) {
+
+  body{
+    display:grid;
+    grid-template-columns:90px 1fr 90px;
+    grid-template-rows:1fr;
+  }
+
+  header{
+    grid-column:1;
+    grid-row:1;
+
+    height:auto;
+    border-bottom:none;
+    border-right:1px solid #ddd;
+
+    flex-direction:column;
+    justify-content:flex-start;
+    align-items:center;
+
+    padding:12px 8px;
+    gap:12px;
+  }
+
+  header h1{
+    writing-mode:vertical-rl;
+    text-orientation:mixed;
+    font-size:18px;
+    margin-bottom:auto;
+  }
+
+  main{
+    grid-column:2;
+    grid-row:1;
+    padding:8px;
+  }
+
+  #canvasWrap{
+    max-width:none;
+    max-height:none;
+    width:min(95vh,95vw);
+    height:min(95vh,95vw);
+  }
+
+  footer{
+    grid-column:3;
+    grid-row:1;
+
+    height:auto;
+
+    border-top:none;
+    border-left:1px solid #ddd;
+
+    overflow-y:auto;
+    overflow-x:hidden;
+
+    justify-content:flex-start;
+
+    padding:12px 8px;
+  }
+
+  .footerTools{
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .divider{
+    width:36px;
+    height:1px;
+  }
+
+}
