@@ -18,7 +18,6 @@ const eraserBtn = document.getElementById("eraserBtn");
 const undoBtn = document.getElementById("undoBtn");
 const clearBtn = document.getElementById("clearBtn");
 const saveBtn = document.getElementById("saveBtn");
-const backBtn = document.getElementById("backBtn");
 
 const size05Btn = document.getElementById("size05Btn");
 const size1Btn = document.getElementById("size1Btn");
@@ -789,7 +788,6 @@ clearBtn.onclick = () => {
 };
 
 saveBtn.onclick = exportLensMap;
-backBtn.onclick = returnToAppSheet;
 
 size05Btn.onclick = () => setPenSize(0.5, size05Btn);
 size1Btn.onclick = () => setPenSize(1, size1Btn);
