@@ -217,11 +217,21 @@ const leftBarWidth =
 const rightBarWidth =
     document.getElementById("rightBar").offsetWidth;
 
-const availableWidth =
-    window.innerWidth - leftBarWidth - rightBarWidth;
+let availableWidth;
+let availableHeight;
 
-const availableHeight =
-    window.innerHeight;
+if (window.innerHeight > window.innerWidth) {
+    // 縦画面
+    availableWidth = window.innerWidth;
+    availableHeight = window.innerHeight
+        - document.getElementById("infoPanel").offsetHeight
+        - document.getElementById("rightBar").offsetHeight;
+} else {
+    // 横画面
+    availableWidth =
+        window.innerWidth - leftBarWidth - rightBarWidth;
+    availableHeight = window.innerHeight;
+}
 
 canvasSize = Math.min(
     availableWidth - 12,
