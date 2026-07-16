@@ -339,49 +339,47 @@ button.active .icon {
 ========================= */
 
 @media (orientation: portrait) {
+
   body {
-    grid-template-columns: 76px minmax(0, 1fr) 88px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  #infoPanel {
+    grid-column: 1;
+    grid-row: 1;
+
+    max-width: none;
+    width: 100%;
+
+    padding: 18px;
+  }
+
+  main {
+    grid-column: 1;
+    grid-row: 2;
+
+    padding: 6px;
   }
 
   #canvasWrap {
-    width: min(
-      calc(100vw - 174px),
-      calc(100dvh - 10px)
-    );
+    width: min(calc(100vw - 16px), calc(100dvh - 220px));
+    height: min(calc(100vw - 16px), calc(100dvh - 220px));
+  }
 
-    height: min(
-      calc(100vw - 174px),
-      calc(100dvh - 10px)
-    );
+  #rightBar {
+    grid-column: 1;
+    grid-row: 3;
+
+    width: 100%;
+    height: auto;
+
+    border-left: none;
+    border-top: 1px solid #ddd;
   }
 
   #title {
-    font-size: 14px;
+    font-size: 16px;
   }
 
-  #surfaceBtn,
-  #insideBtn {
-    width: 72px;
-  }
-
-  }
-
-#saveBtn {
-  width: 70px;
-  height: 40px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0;
-
-  border: none;
-  border-radius: 12px;
-
-  background: #0a66ff;
-  color: #fff;
-
-  font-size: 13px;
-  font-weight: 600;
 }
