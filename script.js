@@ -119,8 +119,12 @@ alert("lensName = " + lensName);
 title.textContent = "AAAA";
 
 function updateTitle() {
-  const sideLabel = currentSide === "front" ? "Front" : "Rear";
-  title.textContent = lensName ? `${lensName} ${sideLabel}` : sideLabel;
+  const sideLabel = currentSide === "front" ? "FRONT" : "REAR";
+
+  title.innerHTML =
+      `${lensName}<br><span style="font-size:14px">${sideLabel}</span>`;
+
+  alert("updateTitle 実行");
 }
 
 // ========================================
