@@ -12,22 +12,33 @@
 </head>
 
 <body>
-  <header>
+
+<div id="leftBar">
 
     <h1 id="title">Lens Map</h1>
 
-<button id="pdfBtn">PDF</button>
-<button id="saveBtn">保存</button>
-  </header>
+    <button id="frontBtn">Front</button>
 
-  <main>
+    <button id="rearBtn">Rear</button>
+
+    <button id="saveBtn">保存</button>
+
+</div>
+
+<main>
+
     <div id="canvasWrap">
-      <canvas id="baseCanvas"></canvas>
-      <canvas id="drawCanvas"></canvas>
-    </div>
-  </main>
 
-  <footer>
+        <canvas id="baseCanvas"></canvas>
+
+        <canvas id="drawCanvas"></canvas>
+
+    </div>
+
+</main>
+
+<div id="rightBar">
+
     <div class="footerTools">
 
       <button id="size05Btn">
@@ -109,7 +120,8 @@
       </button>
 
     </div>
-  </footer>
+
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="script.js?v=3.0.1"></script>
