@@ -274,7 +274,7 @@ function drawLensBase(ctx, x, y, size, clearFirst = false) {
   const cy = y + size / 2;
   const r = size * 0.42;
   const fontSize = size * 0.042;
-  const labelOffset = size * 0.060;
+  const labelOffset = size * 0.058;
   const tick = size * 0.021;
 
   if (clearFirst) {
