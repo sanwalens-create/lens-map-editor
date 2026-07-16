@@ -116,6 +116,8 @@ console.log({
 
 alert("lensName = " + lensName);
 
+title.textContent = "AAAA";
+
 function updateTitle() {
   const sideLabel = currentSide === "front" ? "Front" : "Rear";
   title.textContent = lensName ? `${lensName} ${sideLabel}` : sideLabel;
