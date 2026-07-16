@@ -120,7 +120,7 @@ console.log({
 
 function updateTitle() {
 
-  title.textContent = lensName || "Lens Map";
+  title.textContent = "★★★";
 
   document.getElementById("sideLabel").textContent =
       currentSide === "front" ? "FRONT" : "REAR";
