@@ -120,8 +120,8 @@ console.log({
 
 function updateTitle() {
 
-  title.textContent = "★★★";
-
+  title.textContent = lensName;
+  
   document.getElementById("sideLabel").textContent =
       currentSide === "front" ? "FRONT" : "REAR";
 
