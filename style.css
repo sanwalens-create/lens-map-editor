@@ -401,23 +401,28 @@ button.active .icon {
     font-size: 16px;
   }
 
+  #saveBtn {
+    width: 70px;
+    height: 40px;
+    padding: 0;
+}
+
   .divider {
     width: 2px;
     height: 34px;
 }
 
 #saveBtn {
-    width: 70px;
-    height: 46px;
+  width: 70px;
+  min-height: 44px;
+  padding: 8px 4px;
 
-    background: #0a66ff;
-    color: #fff;
+  border: none;
+  border-radius: 10px;
+  background: #0a66ff;
+  color: #fff;
 
-    border: none;
-    border-radius: 10px;
-
-    font-size: 15px;
-    font-weight: 700;
+  font-size: 15px;
+  font-weight: 700;
 }
-
 }
