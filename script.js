@@ -19,7 +19,6 @@ const undoBtn = document.getElementById("undoBtn");
 const clearBtn = document.getElementById("clearBtn");
 const saveBtn = document.getElementById("saveBtn");
 
-const size05Btn = document.getElementById("size05Btn");
 const size1Btn = document.getElementById("size1Btn");
 const size2Btn = document.getElementById("size2Btn");
 const size4Btn = document.getElementById("size4Btn");
@@ -756,7 +755,6 @@ async function exportLensMap() {
 function setPenSize(size, activeButton) {
   penSize = size;
 
-  size05Btn.classList.remove("active");
   size1Btn.classList.remove("active");
   size2Btn.classList.remove("active");
   size4Btn.classList.remove("active");
@@ -802,7 +800,6 @@ clearBtn.onclick = () => {
 
 saveBtn.onclick = exportLensMap;
 
-size05Btn.onclick = () => setPenSize(0.5, size05Btn);
 size1Btn.onclick = () => setPenSize(1, size1Btn);
 size2Btn.onclick = () => setPenSize(2, size2Btn);
 size4Btn.onclick = () => setPenSize(4, size4Btn);
@@ -840,7 +837,7 @@ window.addEventListener("resize", resizeCanvas);
 
 // ---------- Start ----------
 (async () => {
-  setPenSize(0.5, size05Btn);
+  setPenSize(1, size18Btn);
 
   penBtn.classList.add("active");
   eraserBtn.classList.remove("active");
