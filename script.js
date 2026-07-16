@@ -115,8 +115,6 @@ console.log({
   returnUrl
 });
 
-title.textContent = "AAAA";
-
 function updateTitle() {
 
   title.textContent = lensName || "Lens Map";
