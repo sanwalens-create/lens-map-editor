@@ -3,7 +3,7 @@
 // Version 3.0.0
 // ========================================
 
-const APP_VERSION = "v3.0.0";
+const APP_VERSION = "v3.0.2";
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby27SYVZL79QHnLXPVa0Sd6NrNwWR9R23iM9yMsxv4XUOlwVKGZlxv10-LSdwFNiNcVkQ/exec";
 
 const baseCanvas = document.getElementById("baseCanvas");
