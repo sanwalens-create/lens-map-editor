@@ -114,6 +114,8 @@ console.log({
   returnUrl
 });
 
+alert("lensName = " + lensName);
+
 function updateTitle() {
   const sideLabel = currentSide === "front" ? "Front" : "Rear";
   title.textContent = lensName ? `${lensName} ${sideLabel}` : sideLabel;
@@ -207,16 +209,22 @@ async function savedMapToDrawingDataUrl(dataUrl) {
 }
 
 function resizeCanvas() {
-  const headerHeight = document.querySelector("header").offsetHeight;
-  const footerHeight = document.querySelector("footer").offsetHeight;
+const leftBarWidth =
+    document.getElementById("leftBar").offsetWidth;
 
-  const availableWidth = window.innerWidth;
-  const availableHeight = window.innerHeight - headerHeight - footerHeight;
+const rightBarWidth =
+    document.getElementById("rightBar").offsetWidth;
 
-  canvasSize = Math.min(
-    availableWidth * 0.92,
-    availableHeight * 0.92
-  );
+const availableWidth =
+    window.innerWidth - leftBarWidth - rightBarWidth;
+
+const availableHeight =
+    window.innerHeight;
+
+canvasSize = Math.min(
+    availableWidth - 12,
+    availableHeight - 12
+);
 
   canvasOffsetX = (availableWidth - canvasSize) / 2;
   canvasOffsetY = (availableHeight - canvasSize) / 2;
