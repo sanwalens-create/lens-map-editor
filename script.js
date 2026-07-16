@@ -837,7 +837,7 @@ window.addEventListener("resize", resizeCanvas);
 
 // ---------- Start ----------
 (async () => {
-  setPenSize(1, size18Btn);
+  setPenSize(1, size1Btn);
 
   penBtn.classList.add("active");
   eraserBtn.classList.remove("active");
