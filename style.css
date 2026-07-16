@@ -367,16 +367,35 @@ button.active .icon {
     height: min(calc(100vw - 16px), calc(100dvh - 220px));
   }
 
-  #rightBar {
+#rightBar {
     grid-column: 1;
     grid-row: 3;
 
     width: 100%;
     height: auto;
 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 10px 8px;
+
     border-left: none;
     border-top: 1px solid #ddd;
-  }
+
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.footerTools {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+
+    width: max-content;
+}
 
   #title {
     font-size: 16px;
