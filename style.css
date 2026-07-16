@@ -54,10 +54,20 @@ align-self:start;
 }
 
 #sideLabel {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #666;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #666;
+}
+
+#version {
+  margin-top: 6px;
+
+  font-size: 10px;
+  font-weight: 500;
+  color: #999;
+
+  letter-spacing: 0.5px;
 }
 
 #leftDivider {
