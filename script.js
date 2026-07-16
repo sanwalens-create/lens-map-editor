@@ -28,6 +28,7 @@ const size8Btn = document.getElementById("size8Btn");
 const surfaceBtn = document.getElementById("surfaceBtn");
 const insideBtn = document.getElementById("insideBtn");
 const title = document.getElementById("title");
+const sideIndicator = document.getElementById("sideLabel");
 
 let tool = "pen";
 let penSize = 1;
@@ -114,19 +115,16 @@ console.log({
   returnUrl
 });
 
-alert("lensName = " + lensName);
-
 title.textContent = "AAAA";
 
 function updateTitle() {
-  const sideLabel = currentSide === "front" ? "FRONT" : "REAR";
 
-  title.innerHTML =
-      `${lensName}<br><span style="font-size:14px">${sideLabel}</span>`;
+  title.textContent = lensName || "Lens Map";
 
-  alert("updateTitle 実行");
+  document.getElementById("sideLabel").textContent =
+      currentSide === "front" ? "FRONT" : "REAR";
+
 }
-
 // ========================================
 // 現在の面の保存済み画像をGASから取得して履歴へ登録
 // ========================================
