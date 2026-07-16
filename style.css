@@ -14,8 +14,10 @@ body {
 }
 
 body {
+  position: relative;
+
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr) 94px;
+  grid-template-columns: 1fr 94px;
   grid-template-rows: 100dvh;
 }
 
@@ -96,7 +98,7 @@ main {
 
   width: min(
     calc(100dvh - 10px),
-    calc(100vw - 188px)
+    calc(100vw - 106px)
   );
 
   height: min(
