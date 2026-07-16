@@ -263,11 +263,11 @@ button.active {
 
 .divider {
   width: 52px;
-  height: 1px;
+  height: 2px;
 
   flex: 0 0 auto;
 
-  margin: 3px 0;
+  margin: 6px 0;
   background: #d6d6d6;
 }
 
@@ -363,23 +363,5 @@ button.active .icon {
   #insideBtn {
     width: 72px;
   }
-}
-.saveDivider {
-  height: 2px;
-  margin-top: 8px;
-  background: #aaa;
-}
 
-#saveBtn {
-  width: 78px;
-  min-height: 44px;
-  padding: 8px 4px;
-
-  border: none;
-  border-radius: 10px;
-  background: #0a66ff;
-  color: #fff;
-
-  font-size: 15px;
-  font-weight: 700;
-}
+  }
