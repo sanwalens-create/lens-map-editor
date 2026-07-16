@@ -402,12 +402,22 @@ button.active .icon {
   }
 
   .divider {
-    width: 1px;
+    width: 2px;
     height: 34px;
 }
 
 #saveBtn {
-    width: 86px;
+    width: 70px;
+    height: 46px;
+
+    background: #0a66ff;
+    color: #fff;
+
+    border: none;
+    border-radius: 10px;
+
+    font-size: 15px;
+    font-weight: 700;
 }
 
 }
