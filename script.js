@@ -74,8 +74,6 @@ console.log("search =", window.location.search);
 const lensId = params.get("id") || "";
 const lensName = params.get("lens") || "";
 
-console.log("lens =", params.get("lens"));
-console.log("lensName =", lensName);
 const serialNo = params.get("serial") || "";
 const receivedDate = params.get("received") || "";
 const requestedSide = (params.get("side") || "front").toLowerCase();
@@ -121,7 +119,7 @@ console.log({
 function updateTitle() {
 
   title.textContent = lensName;
-  
+
   document.getElementById("sideLabel").textContent =
       currentSide === "front" ? "FRONT" : "REAR";
 
@@ -256,8 +254,6 @@ canvasSize = Math.min(
 
 drawBase();
 loadCurrentDrawing();
-
-console.log("updateTitle 呼び出し");
 
 updateTitle();
 
