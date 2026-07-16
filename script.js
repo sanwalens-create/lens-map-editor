@@ -215,7 +215,7 @@ async function savedMapToDrawingDataUrl(dataUrl) {
 
 function resizeCanvas() {
 const leftBarWidth =
-    document.getElementById("leftBar").offsetWidth;
+    document.getElementById("infoPanel").offsetWidth;
 
 const rightBarWidth =
     document.getElementById("rightBar").offsetWidth;
