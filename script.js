@@ -254,10 +254,14 @@ canvasSize = Math.min(
   baseCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
   drawCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-  drawBase();
-  loadCurrentDrawing();
-  updateTitle();
-  applyViewTransform();
+drawBase();
+loadCurrentDrawing();
+
+console.log("updateTitle 呼び出し");
+
+updateTitle();
+
+applyViewTransform();
 }
 
 function drawBase() {
