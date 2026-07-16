@@ -334,6 +334,20 @@ button.active .icon {
   stroke: #fff;
 }
 
+#saveBtn {
+  width: 70px;
+  min-height: 44px;
+  padding: 8px 4px;
+
+  border: none;
+  border-radius: 10px;
+  background: #0a66ff;
+  color: #fff;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
 /* =========================
    縦向き時の簡易表示
 ========================= */
@@ -401,9 +415,9 @@ button.active .icon {
     font-size: 16px;
   }
 
-  #saveBtn {
-    width: 70px;
+#saveBtn {
     height: 40px;
+    min-height: 40px;
     padding: 0;
 }
 
@@ -412,17 +426,4 @@ button.active .icon {
     height: 34px;
 }
 
-#saveBtn {
-  width: 70px;
-  min-height: 44px;
-  padding: 8px 4px;
-
-  border: none;
-  border-radius: 10px;
-  background: #0a66ff;
-  color: #fff;
-
-  font-size: 15px;
-  font-weight: 700;
-}
 }
