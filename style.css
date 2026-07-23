@@ -373,6 +373,11 @@ button.active .icon {
     align-items: flex-start;
 }
 
+#titleBlock {
+    display: flex;
+    flex-direction: column;
+}
+
 #historyPreview {
     width: 180px;
     margin-left: 16px;
