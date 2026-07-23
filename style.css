@@ -426,4 +426,49 @@ button.active .icon {
     height: 34px;
 }
 
+#historyPreview{
+  width:140px;
+}
+
+/* ==========================
+   History Preview
+========================== */
+
+#historyPreview {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+
+  width: 170px;
+
+  background: rgba(255,255,255,0.95);
+
+  border: 1px solid #bbb;
+  border-radius: 10px;
+
+  padding: 8px;
+
+  z-index: 20;
+
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
+}
+
+#historyTitle{
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:4px;
+}
+
+#historyInfo{
+  font-size:11px;
+  color:#666;
+  margin-bottom:6px;
+}
+
+#historyImage{
+  width:100%;
+  display:none;
+  border-radius:6px;
+}
+
 }
