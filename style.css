@@ -482,4 +482,15 @@ button.active .icon {
     display: block;
 }
 
+#historyImage{
+    width:100%;
+    flex:1;
+
+    object-fit:contain;
+
+    display:block;
+
+    min-height:0;
+}
+
 }
