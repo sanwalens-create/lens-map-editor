@@ -472,4 +472,14 @@ button.active .icon {
   border-radius:6px;
 }
 
+
+#historyImage {
+    width: 100%;
+    height: calc(100% - 26px);
+
+    object-fit: contain;
+
+    display: block;
+}
+
 }
