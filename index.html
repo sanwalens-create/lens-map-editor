@@ -14,20 +14,41 @@
 <body>
 
 <div id="infoPanel">
-    <div id="title">Lens Map</div>
-    <div id="sideLabel">FRONT</div>
-    <div id="version">v3.0.2</div>
+
+    <div id="titleBlock">
+        <div id="title">Lens Map</div>
+        <div id="sideLabel">FRONT</div>
+        <div id="version">v3.1.5</div>
+    </div>
+
+    <div id="historyPreview">
+
+        <div id="historyTitle">
+            前回履歴
+        </div>
+
+        <div id="historyInfo">
+            履歴なし
+        </div>
+
+        <img
+            id="historyImage"
+            src=""
+            alt="History"
+        />
+
+    </div>
+
 </div>
 
 <main>
 
     <div id="canvasWrap">
 
-        <canvas id="baseCanvas"></canvas>
+  <canvas id="baseCanvas"></canvas>
+  <canvas id="drawCanvas"></canvas>
 
-        <canvas id="drawCanvas"></canvas>
-
-    </div>
+</div>
 
 </main>
 

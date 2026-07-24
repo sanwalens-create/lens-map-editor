@@ -367,7 +367,32 @@ button.active .icon {
     width: 100%;
 
     padding: 18px;
-  }
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+#titleBlock {
+    display: flex;
+    flex-direction: column;
+}
+
+#historyPreview {
+    width: 280px;
+    height: 150px;
+
+    margin-left: auto;
+    margin-right: 8px;
+    margin-top: -88px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    text-align: left;
+}
 
   main {
     grid-column: 1;
@@ -424,6 +449,49 @@ button.active .icon {
   .divider {
     width: 2px;
     height: 34px;
+}
+
+/* ==========================
+   History Preview
+========================== */
+
+#historyTitle{
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:4px;
+}
+
+#historyInfo{
+  font-size:11px;
+  color:#666;
+  margin-bottom:6px;
+}
+
+#historyImage{
+  width:100%;
+  display:none;
+  border-radius:6px;
+}
+
+
+#historyImage {
+    width: 100%;
+    height: calc(100% - 26px);
+
+    object-fit: contain;
+
+    display: block;
+}
+
+#historyImage{
+    width:100%;
+    flex:1;
+
+    object-fit:contain;
+
+    display:block;
+
+    min-height:0;
 }
 
 }

@@ -78,6 +78,7 @@ const lensName = params.get("lens") || "";
 
 const serialNo = params.get("serial") || "";
 const receivedDate = params.get("received") || "";
+const previousId = params.get("previousId") || "";
 const requestedSide = (params.get("side") || "front").toLowerCase();
 const currentSide = requestedSide === "rear" ? "rear" : "front";
 const returnUrl = params.get("returnUrl") || params.get("return") || "";
@@ -114,6 +115,7 @@ console.log({
   lensName,
   serialNo,
   receivedDate,
+  previousId,
   currentSide,
   returnUrl
 });
@@ -150,6 +152,8 @@ async function fetchSavedImage() {
 
     const result = await response.json();
 
+    // alert(JSON.stringify(result));
+
     if (!result.success) {
       throw new Error(result.error || "保存済み画像の取得に失敗しました。");
     }
@@ -179,6 +183,69 @@ async function fetchSavedImage() {
 // 保存画像（1200×1400）からマップ部分（1000×1000）を取り出す
 // ========================================
 async function savedMapToDrawingDataUrl(dataUrl) {
+  // ========================================
+// 前回履歴を取得して表示
+// ========================================
+ async function fetchHistory(){
+
+  alert("fetchHistory開始");
+
+  if (!previousId) {
+    console.log("前回履歴なし");
+
+    document.getElementById("historyInfo").textContent = "履歴なし";
+    document.getElementById("historyImage").style.display = "none";
+    return;
+  }
+
+  try {
+
+    const response = await fetch(IMAGE_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify({
+        action: "history",
+        previousId: previousId
+      })
+    });
+
+    const result = await response.json();
+
+    alert("History\n" + JSON.stringify(result));
+
+    if (!result.success) {
+      throw new Error(result.error || "履歴取得失敗");
+    }
+
+    const historyImage =
+      currentSide === "front"
+        ? result.frontMap
+        : result.rearMap;
+
+    if (!historyImage) {
+      document.getElementById("historyInfo").textContent = "履歴なし";
+      document.getElementById("historyImage").style.display = "none";
+      return;
+    }
+
+    document.getElementById("historyInfo").textContent =
+      "ID : " + result.history.id;
+
+    const img = document.getElementById("historyImage");
+    img.src = historyImage;
+    img.style.display = "block";
+
+  } catch (err) {
+
+    console.error(err);
+
+    document.getElementById("historyInfo").textContent =
+      "履歴取得エラー";
+  }
+
+}
   if (!dataUrl) return "";
 
   const img = await loadImage(dataUrl);
@@ -737,6 +804,8 @@ async function exportLensMap() {
 
     const result = await response.json();
 
+    console.log(result);
+
     if (!result.success) {
       throw new Error(result.error || "保存に失敗しました。");
     }
@@ -898,4 +967,5 @@ window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
 
   await fetchSavedImage();
+  await fetchHistory();
 })();
