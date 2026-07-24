@@ -186,66 +186,7 @@ async function savedMapToDrawingDataUrl(dataUrl) {
   // ========================================
 // 前回履歴を取得して表示
 // ========================================
- async function fetchHistory(){
 
-  alert("fetchHistory開始");
-
-  if (!previousId) {
-    console.log("前回履歴なし");
-
-    document.getElementById("historyInfo").textContent = "履歴なし";
-    document.getElementById("historyImage").style.display = "none";
-    return;
-  }
-
-  try {
-
-    const response = await fetch(IMAGE_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      body: JSON.stringify({
-        action: "history",
-        previousId: previousId
-      })
-    });
-
-    const result = await response.json();
-
-    alert("History\n" + JSON.stringify(result));
-
-    if (!result.success) {
-      throw new Error(result.error || "履歴取得失敗");
-    }
-
-    const historyImage =
-      currentSide === "front"
-        ? result.frontMap
-        : result.rearMap;
-
-    if (!historyImage) {
-      document.getElementById("historyInfo").textContent = "履歴なし";
-      document.getElementById("historyImage").style.display = "none";
-      return;
-    }
-
-    document.getElementById("historyInfo").textContent =
-      "ID : " + result.history.id;
-
-    const img = document.getElementById("historyImage");
-    img.src = historyImage;
-    img.style.display = "block";
-
-  } catch (err) {
-
-    console.error(err);
-
-    document.getElementById("historyInfo").textContent =
-      "履歴取得エラー";
-  }
-
-}
   if (!dataUrl) return "";
 
   const img = await loadImage(dataUrl);
@@ -928,5 +869,5 @@ window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
 
   await fetchSavedImage();
-  await fetchHistory();
+
 })();
