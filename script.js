@@ -183,7 +183,7 @@ async function savedMapToDrawingDataUrl(dataUrl) {
   // ========================================
 // 前回履歴を取得して表示
 // ========================================
-async function fetchHistory() {
+ async function fetchHistory(){
 
   if (!previousId) {
     console.log("前回履歴なし");
@@ -796,6 +796,8 @@ async function exportLensMap() {
     });
 
     const result = await response.json();
+
+    console.log(result);
 
     if (!result.success) {
       throw new Error(result.error || "保存に失敗しました。");
