@@ -834,30 +834,6 @@ async function exportLensMap() {
   }
 }
 
-async function requestPdf(id) {
-  try {
-    const response = await fetch(IMAGE_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        action: "pdf",
-        id: id
-      })
-    });
-
-    return await response.json();
-
-  } catch (err) {
-    console.error(err);
-    return {
-      success: false,
-      error: String(err)
-    };
-  }
-}
-
 function setPenSize(size, activeButton) {
   penSize = size;
 
@@ -905,21 +881,6 @@ clearBtn.onclick = () => {
 };
 
 saveBtn.onclick = exportLensMap;
-
-const pdfBtn = document.getElementById("pdfBtn");
-
-pdfBtn.onclick = async () => {
-
-  const result = await requestPdf(lensId);
-
-  if (!result.success) {
-    alert(result.error || "PDF生成に失敗しました。");
-    return;
-  }
-
-  alert("PDFを生成しました。");
-
-};
 
 size1Btn.onclick = () => setPenSize(1, size1Btn);
 size2Btn.onclick = () => setPenSize(2, size2Btn);
