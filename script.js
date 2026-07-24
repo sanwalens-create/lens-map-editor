@@ -188,6 +188,8 @@ async function savedMapToDrawingDataUrl(dataUrl) {
 // ========================================
  async function fetchHistory(){
 
+  alert("fetchHistory開始");
+
   if (!previousId) {
     console.log("前回履歴なし");
 
