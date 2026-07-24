@@ -115,6 +115,7 @@ console.log({
   lensName,
   serialNo,
   receivedDate,
+  previousId,
   currentSide,
   returnUrl
 });
