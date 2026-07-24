@@ -4,7 +4,10 @@
 // ========================================
 
 const APP_VERSION = "v3.0.2";
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby27SYVZL79QHnLXPVa0Sd6NrNwWR9R23iM9yMsxv4XUOlwVKGZlxv10-LSdwFNiNcVkQ/exec";
+const IMAGE_API_URL = "https://script.google.com/macros/s/AKfycby27SYVZL79QHnLXPVa0Sd6NrNwWR9R23iM9yMsxv4XUOlwVKGZlxv10-LSdwFNiNcVkQ/exec";
+
+// 後で追加するPDF生成用
+const PDF_API_URL = "";
 
 const baseCanvas = document.getElementById("baseCanvas");
 const drawCanvas = document.getElementById("drawCanvas");
@@ -134,7 +137,7 @@ async function fetchSavedImage() {
 
   try {
     const requestUrl =
-      `${GAS_WEB_APP_URL}?id=${encodeURIComponent(lensId)}&t=${Date.now()}`;
+      `${IMAGE_API_URL}?id=${encodeURIComponent(lensId)}&t=${Date.now()}`;
 
     const response = await fetch(requestUrl, {
       method: "GET",
@@ -723,7 +726,7 @@ async function exportLensMap() {
       rearImage: currentSide === "rear" ? image : ""
     };
 
-    const response = await fetch(GAS_WEB_APP_URL, {
+    const response = await fetch(IMAGE_API_URL, {
       method: "POST",
       cache: "no-store",
       headers: {
@@ -759,6 +762,30 @@ async function exportLensMap() {
     isSaving = false;
     saveBtn.disabled = false;
     saveBtn.textContent = originalLabel || "保存";
+  }
+}
+
+async function requestPdf(id) {
+  try {
+    const response = await fetch(IMAGE_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        action: "pdf",
+        id: id
+      })
+    });
+
+    return await response.json();
+
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+      error: String(err)
+    };
   }
 }
 
@@ -809,6 +836,21 @@ clearBtn.onclick = () => {
 };
 
 saveBtn.onclick = exportLensMap;
+
+const pdfBtn = document.getElementById("pdfBtn");
+
+pdfBtn.onclick = async () => {
+
+  const result = await requestPdf(lensId);
+
+  if (!result.success) {
+    alert(result.error || "PDF生成に失敗しました。");
+    return;
+  }
+
+  alert("PDFを生成しました。");
+
+};
 
 size1Btn.onclick = () => setPenSize(1, size1Btn);
 size2Btn.onclick = () => setPenSize(2, size2Btn);
