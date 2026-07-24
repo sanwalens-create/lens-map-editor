@@ -151,6 +151,8 @@ async function fetchSavedImage() {
 
     const result = await response.json();
 
+    alert(JSON.stringify(result));
+
     if (!result.success) {
       throw new Error(result.error || "保存済み画像の取得に失敗しました。");
     }
