@@ -210,6 +210,8 @@ async function savedMapToDrawingDataUrl(dataUrl) {
 
     const result = await response.json();
 
+    alert("History\n" + JSON.stringify(result));
+
     if (!result.success) {
       throw new Error(result.error || "履歴取得失敗");
     }
