@@ -380,9 +380,11 @@ button.active .icon {
 
 #historyPreview {
     width: 280px;
+    height: 150px;
 
     margin-left: auto;
     margin-right: 8px;
+    margin-top: -88px;
 
     flex-shrink: 0;
 
