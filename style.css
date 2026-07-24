@@ -379,12 +379,16 @@ button.active .icon {
 }
 
 #historyPreview {
-    width: 180px;
+    width: 220px;
+    height: 150px;
 
     margin-left: auto;
     margin-right: 8px;
 
     flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
 
     text-align: left;
 }
